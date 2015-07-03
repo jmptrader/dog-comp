@@ -1,4 +1,4 @@
-package lexer
+package parser
 
 import "fmt"
 import "os"
@@ -41,6 +41,7 @@ func initTokenMap() {
 	tokenMap["new"] = TOKEN_NEW
 	tokenMap["make"] = TOKEN_MAKE
 	tokenMap["!"] = TOKEN_NOT
+	tokenMap[";"] = TOKEN_NEWLINE
 	//num
 	tokenMap["fmt"] = TOKEN_FMT
 	tokenMap["Println"] = TOKEN_PRINTLN
@@ -49,15 +50,15 @@ func initTokenMap() {
 	tokenMap["]"] = TOKEN_RBRACK
 	tokenMap["return"] = TOKEN_RETURN
 	tokenMap[")"] = TOKEN_RPAREN
-	tokenMap[":="] = TOKEN_DERIV
+	tokenMap[":="] = TOKEN_DERIVE
 	tokenMap[";"] = TOKEN_SEMI
-	tokenMap["*"] = TOKEN_START
+	tokenMap["*"] = TOKEN_STAR
+	tokenMap["-"] = TOKEN_SUB
 	tokenMap["true"] = TOKEN_TRUE
 	tokenMap["void"] = TOKEN_VOID
+	tokenMap["var"] = TOKEN_VAR
 	tokenMap["for"] = TOKEN_FOR
 	tokenMap["type"] = TOKEN_TYPE
-	tokenMap["package"] = TOKEN_PACKAGE
-	tokenMap["import"] = TOKEN_IMPORT
 
 	tMap = make(map[int]string)
 	tMap[TOKEN_ADD] = "TOKEN_ADD"
@@ -80,6 +81,7 @@ func initTokenMap() {
 	tMap[TOKEN_LT] = "TOKEN_LT"
 	tMap[TOKEN_MAIN] = "TOKEN_MAIN"
 	tMap[TOKEN_NEW] = "TOKEN_NEW"
+	tMap[TOKEN_NEWLINE] = "TOKEN_NEWLINE"
 	tMap[TOKEN_NUM] = "TOKEN_NUM"
 	tMap[TOKEN_MAKE] = "TOKEN_MAKE"
 	tMap[TOKEN_NOT] = "TOKEN_NOT"
@@ -90,14 +92,14 @@ func initTokenMap() {
 	tMap[TOKEN_RBRACK] = "TOKEN_RBRACK"
 	tMap[TOKEN_RETURN] = "TOKEN_RETURN"
 	tMap[TOKEN_RPAREN] = "TOKEN_RPAREN"
-	tMap[TOKEN_DERIV] = "TOKEN_DERIV"
+	tMap[TOKEN_DERIVE] = "TOKEN_DERIVE"
 	tMap[TOKEN_SEMI] = "TOKEN_SEMI"
-	tMap[TOKEN_START] = "TOKEN_START"
+	tMap[TOKEN_STAR] = "TOKEN_STAR"
+	tMap[TOKEN_SUB] = "TOKEN_SUB"
 	tMap[TOKEN_TRUE] = "TOKEN_TRUE"
 	tMap[TOKEN_VOID] = "TOKEN_VOID"
+	tMap[TOKEN_VAR] = "TOKEN_VAR"
 	tMap[TOKEN_FOR] = "TOKEN_FOR"
-	tMap[TOKEN_PACKAGE] = "TOKEN_PACKAGE"
-	tMap[TOKEN_IMPORT] = "TOKEN_IMPORT"
 	tMap[TOKEN_TYPE] = "TOKEN_TYPE"
 
 }
@@ -112,38 +114,39 @@ const (
 	TOKEN_STRUCT
 	TOKEN_COMMER
 	TOKEN_DOT
+	TOKEN_DERIVE
 	TOKEN_ELSE
 	TOKEN_EOF
 	TOKEN_FALSE
+	TOKEN_FOR
+	TOKEN_FUNC
+	TOKEN_FMT
 	TOKEN_ID
 	TOKEN_IF
 	TOKEN_INT
-	TOKEN_IMPORT
 	TOKEN_LBRACE
 	TOKEN_LBRACK
 	TOKEN_LEN
 	TOKEN_LPAREN
 	TOKEN_LT
 	TOKEN_MAIN
-	TOKEN_NEW
 	TOKEN_MAKE
+	TOKEN_NEW
+	TOKEN_NEWLINE
 	TOKEN_NOT
 	TOKEN_NUM
-	TOKEN_FMT
 	TOKEN_PRINTLN
-	TOKEN_PACKAGE
-	TOKEN_FUNC
 	TOKEN_RBRACE
 	TOKEN_RBRACK
 	TOKEN_RETURN
 	TOKEN_RPAREN
-	TOKEN_DERIV
-	TOKEN_START
+	TOKEN_STAR
 	TOKEN_SEMI
+	TOKEN_SUB
 	TOKEN_TRUE
 	TOKEN_TYPE
+	TOKEN_VAR
 	TOKEN_VOID
-	TOKEN_FOR
 )
 
 func (this *Token) ToString() string {

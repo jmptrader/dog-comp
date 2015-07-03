@@ -1,4 +1,4 @@
-package lexer
+package parser
 
 import (
 	"../util"
@@ -62,8 +62,9 @@ func (this *Lexer) expectIdOrKey(c byte) *Token {
 		return tk
 	} else if this.s == "" {
 		if c == '\n' {
+			tk := newToken(TOKEN_NEWLINE, ";", this.lineNum)
 			this.lineNum++
-			return nil
+			return tk
 		} else if c != ' ' {
 			kk := tokenMap[string(c)]
 			tk := newToken(kk, string(c), this.lineNum)
@@ -141,7 +142,7 @@ func (this *Lexer) nextTokenInternal() *Token {
 	case ':':
 		if this.s == "" {
 			if this.expectKeyword("=") {
-				return newToken(TOKEN_DERIV, ":=", this.lineNum)
+				return newToken(TOKEN_DERIVE, ":=", this.lineNum)
 			} else {
 				_, filename, line, _ := runtime.Caller(0)
 				util.Bug("expect :=", filename, line)

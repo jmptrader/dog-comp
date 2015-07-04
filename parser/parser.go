@@ -6,7 +6,7 @@ import (
     //"../lexer"
     "../ast"
     "../util"
-    "container/list"
+    //"container/list"
     "strconv"
 )
 
@@ -79,11 +79,13 @@ func (this *Parser) parseType() ast.Type {
         return &ast.IntArray{}
     case TOKEN_STAR:
         this.eatToken(TOKEN_STAR)
+        name := this.current.Lexeme
         this.eatToken(TOKEN_ID)
-        return &ast.ClassType{}
+        return &ast.ClassType{name}
     default:
+        name := this.current.Lexeme
         this.eatToken(TOKEN_ID)
-        return &ast.ClassType{}
+        return &ast.ClassType{name}
     }
 }
 
@@ -102,12 +104,12 @@ func (this *Parser) parseFieldDec(id string) *ast.FieldDec {
 *
 *
 */
-func (this *Parser) parseFieldDecs() *list.List {
-    fields := list.New()
+func (this *Parser) parseFieldDecs() []*ast.FieldDec {
+    fields :=[]*ast.FieldDec{}
     id := this.current.Lexeme
     for this.skipLine(); this.current.Kind == TOKEN_ID; this.skipLine() {
         this.eatToken(TOKEN_ID)
-        fields.PushBack(this.parseFieldDec(id))
+        fields = append(fields, this.parseFieldDec(id))
     }
 
     return fields
@@ -133,10 +135,11 @@ func (this *Parser) parseStrDec() *ast.StructDec {
 /**
 *
 */
-func (this *Parser) parseStrDecs() *list.List {
-    strdecs := list.New()
+func (this *Parser) parseStrDecs() []*ast.StructDec {
+    strdecs := []*ast.StructDec{}
     for this.skipLine(); this.current.Kind == TOKEN_TYPE; this.skipLine() {
-        strdecs.PushBack(this.parseStrDec())
+        strdecs = append(strdecs, this.parseStrDec())
+        //strdecs.PushBack(this.parseStrDec())
     }
     return strdecs
 }
@@ -144,18 +147,18 @@ func (this *Parser) parseStrDecs() *list.List {
 /**
 *
 */
-func (this *Parser) parseFormalList() *list.List {
-    flist := list.New()
+func (this *Parser) parseFormalList() []*ast.FieldDec {
+    flist := []*ast.FieldDec{}
 
     this.eatToken(TOKEN_LPAREN)
     if this.current.Kind == TOKEN_ID {
         id := this.current.Lexeme
-        flist.PushBack(this.parseFieldDec(id))
+        flist = append(flist, this.parseFieldDec(id))
 
         for this.current.Kind == TOKEN_COMMER {
             this.eatToken(TOKEN_COMMER)
             id := this.current.Lexeme
-            flist.PushBack(this.parseFieldDec(id))
+            flist = append(flist, this.parseFieldDec(id))
         }
     }
     this.eatToken(TOKEN_RPAREN)
@@ -226,16 +229,16 @@ func (this *Parser) parseAtomExp() ast.Exp {
     return nil
 }
 
-func (this *Parser) parseExpList() *list.List {
-    args := list.New()
+func (this *Parser) parseExpList() []ast.Exp {
+    args := []ast.Exp{}
     if this.current.Kind == TOKEN_RPAREN {
         return args
     }
 
-    args.PushBack(this.parseExp())
+    args = append(args, this.parseExp())
     for this.current.Kind == TOKEN_COMMER {
         this.advance()
-        args.PushBack(this.parseExp())
+        args = append(args, this.parseExp())
     }
     return args
 }
@@ -383,12 +386,14 @@ func (this *Parser) parseStatement() ast.Stm {
     case TOKEN_FMT:
         this.eatToken(TOKEN_FMT)
         this.eatToken(TOKEN_DOT)
-        this.eatToken(TOKEN_RPAREN)
+        this.eatToken(TOKEN_PRINTLN)
+        this.eatToken(TOKEN_LPAREN)
         e := this.parseExp()
+        this.eatToken(TOKEN_RPAREN)
         return &ast.Print{e}
     default:
         _, filename, line, _ := runtime.Caller(0)
-        util.Bug("test bug", filename, line)
+        util.Bug("token error", filename, line)
     }
     return nil
 }
@@ -396,22 +401,18 @@ func (this *Parser) parseStatement() ast.Stm {
 /**
 *
 */
-func (this *Parser) parseStatements() *list.List {
-    stms := list.New()
-    //for this.skipLine(); this.current.Kind != TOKEN_RETURN; this.skipLine() {
-    //  stms.PushBack(this.parseStatement())
-    //}
-
+func (this *Parser) parseStatements() []ast.Stm {
+    stms := []ast.Stm{}
     for this.skipLine(); this.current.Kind == TOKEN_LBRACE ||
     this.current.Kind == TOKEN_ID ||
     this.current.Kind == TOKEN_IF ||
     this.current.Kind == TOKEN_FOR; this.skipLine() {
-        stms.PushBack(this.parseStatement())
+        stms = append(stms, this.parseStatement())
     }
     return stms
 }
 
-func (this *Parser) parseVarDec() ast.Dec {
+func (this *Parser) parseVarDec() *ast.VarDec {
     this.eatToken(TOKEN_VAR)
     id := this.current.Lexeme
     this.eatToken(TOKEN_ID)
@@ -424,10 +425,10 @@ func (this *Parser) parseVarDec() ast.Dec {
 *
 *
 */
-func (this *Parser) parseVarDecs() *list.List {
-    decs := list.New()
+func (this *Parser) parseVarDecs() []*ast.VarDec {
+    decs := []*ast.VarDec{}
     for this.skipLine(); this.current.Kind == TOKEN_VAR; this.skipLine() {
-        decs.PushBack(this.parseVarDec())
+        decs = append(decs, this.parseVarDec())
     }
     return decs
 }
@@ -455,6 +456,8 @@ func (this *Parser) parseMethod() ast.Func {
     stms := this.parseStatements()
     this.eatToken(TOKEN_RETURN)
     retExp := this.parseExp()
+    this.skipLine()
+    this.eatToken(TOKEN_RBRACE)
 
     return &ast.MethodSingle{firstarg, bindingType, method_name, formals,rettype ,locals, stms, retExp}
 }
@@ -463,19 +466,29 @@ func (this *Parser) parseMethod() ast.Func {
 *
 *
 */
-func (this *Parser) parseMethods() *list.List {
-    methods := list.New()
+func (this *Parser) parseMethods() []ast.Func {
+    methods := []ast.Func{}
     for this.skipLine(); this.current.Kind == TOKEN_FUNC; this.skipLine() {
-        methods.PushBack(this.parseMethod())
+        methods = append(methods, this.parseMethod())
+        fmt.Printf("current.Kind=%s\n", tMap[this.current.Kind])
     }
-    return nil
+    return methods
 }
 
 /**
 *
 */
 func (this *Parser) parseMainFunc() ast.MainFunc {
-    return nil
+    this.eatToken(TOKEN_FUNC)
+    this.eatToken(TOKEN_MAIN)
+    this.eatToken(TOKEN_LPAREN)
+    this.eatToken(TOKEN_RPAREN)
+    this.eatToken(TOKEN_LBRACE)
+    this.skipLine()
+    stm := this.parseStatement()
+    this.skipLine()
+    this.eatToken(TOKEN_RBRACE)
+    return &ast.MainFuncSingle{stm}
 }
 
 /**
@@ -485,8 +498,8 @@ func (this *Parser) parseMainFunc() ast.MainFunc {
 func (this *Parser) parseProgram() ast.Prog {
     this.skipLine()
     strdecs := this.parseStrDecs()
-    methods := this.parseMethods()
     mainfunc := this.parseMainFunc()
+    methods := this.parseMethods()
     return &ast.ProgramSingle{mainfunc, nil, strdecs, methods}
 }
 

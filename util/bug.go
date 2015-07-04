@@ -15,3 +15,5 @@ func ParserError(expect string, current string, linenum int){
     fmt.Printf("Expect: <%s>, but got <%s> at line:%d\n", expect, current, linenum)
     os.Exit(0)
 }
+
+

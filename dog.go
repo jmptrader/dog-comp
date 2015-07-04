@@ -1,7 +1,7 @@
 package main
 
 import (
-	//"./lexer"
+	"./ast"
 	"./parser"
 	"./util"
 	"fmt"
@@ -36,6 +36,10 @@ func main() {
 	pser := parser.NewParse(filename, buf)
 	Ast := pser.Parser()
 	fmt.Printf("%T\n", Ast)
+
+	pp := ast.NewPP()
+	pp.DumpProg(Ast)
+
 	_, filename, line, _ := runtime.Caller(0)
 	util.Bug("test bug", filename, line)
 }

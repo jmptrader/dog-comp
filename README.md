@@ -135,6 +135,10 @@ ExpRest -> ,Exp
       <td>int</td>
    </tr>
 <tr>
+      <td>TOKEN_IMPORT</td>
+      <td>import</td>
+   </tr>
+<tr>
       <td>TOKEN_LBRACE</td>
       <td>{</td>
    </tr>
@@ -163,10 +167,6 @@ ExpRest -> ,Exp
       <td>new</td>
    </tr>
 <tr>
-      <td>TOKEN_NEWLINE</td>
-      <td>\n</td>
-   </tr>
-<tr>
       <td>TOKEN_MAKE</td>
       <td>make</td>
    </tr>
@@ -177,6 +177,10 @@ ExpRest -> ,Exp
 <tr>
       <td>TOKEN_NUM</td>
       <td>IntegerLiteral</td>
+   </tr>
+<tr>
+      <td>TOKEN_PACKAGE</td>
+      <td>package</td>
    </tr>
 <tr>
       <td>TOKEN_PRINTLN</td>
@@ -213,10 +217,6 @@ ExpRest -> ,Exp
 <tr>
       <td>TOKEN_STRUCT</td>
       <td>struct</td>
-   </tr>
-<tr>
-      <td>TOKEN_SUB</td>
-      <td>-</td>
    </tr>
 <tr>
       <td>TOKEN_TRUE</td>

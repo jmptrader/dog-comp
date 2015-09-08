@@ -1,4 +1,5 @@
 package parser
+/*
 
 import (
     "fmt"
@@ -16,10 +17,6 @@ type Parser struct {
     linenum int
 }
 
-/**
-*
-*
-*/
 func NewParse(fname string, buf []byte) *Parser {
     lexer := NewLexer(fname, buf)
     p := new(Parser)
@@ -29,29 +26,18 @@ func NewParse(fname string, buf []byte) *Parser {
     return p
 }
 
-/**
-*
-*
-*/
 func (this *Parser) skipLine() {
     for this.current.Kind == TOKEN_NEWLINE {
         this.eatToken(TOKEN_NEWLINE)
     }
 }
 
-/**
-*
-*
-*/
 func (this *Parser) advance() {
     this.linenum = this.current.LineNum
     this.current = this.lexer.NextToken()
     fmt.Println(this.current.ToString())
 }
 
-/**
-*
-*/
 func (this *Parser) eatToken(kind int) {
     if kind == this.current.Kind {
         this.advance()
@@ -60,10 +46,6 @@ func (this *Parser) eatToken(kind int) {
     }
 }
 
-/**
-*
-*
-*/
 func (this *Parser) parseType() ast.Type {
     switch this.current.Kind {
     case TOKEN_INT:
@@ -89,21 +71,12 @@ func (this *Parser) parseType() ast.Type {
     }
 }
 
-/**
-*
-*
-*/
 func (this *Parser) parseFieldDec(id string) *ast.FieldDec {
-
     this.eatToken(TOKEN_ID)
     tp := this.parseType()
     return &ast.FieldDec{tp, id}
 }
 
-/**
-*
-*
-*/
 func (this *Parser) parseFieldDecs() []*ast.FieldDec {
     fields :=[]*ast.FieldDec{}
     id := this.current.Lexeme
@@ -115,10 +88,6 @@ func (this *Parser) parseFieldDecs() []*ast.FieldDec {
     return fields
 }
 
-/**
-*
-*
-*/
 func (this *Parser) parseStrDec() *ast.StructDec {
 
     this.eatToken(TOKEN_TYPE)
@@ -132,9 +101,6 @@ func (this *Parser) parseStrDec() *ast.StructDec {
     return &ast.StructDec{id, fields}
 }
 
-/**
-*
-*/
 func (this *Parser) parseStrDecs() []*ast.StructDec {
     strdecs := []*ast.StructDec{}
     for this.skipLine(); this.current.Kind == TOKEN_TYPE; this.skipLine() {
@@ -144,9 +110,6 @@ func (this *Parser) parseStrDecs() []*ast.StructDec {
     return strdecs
 }
 
-/**
-*
-*/
 func (this *Parser) parseFormalList() []*ast.FieldDec {
     flist := []*ast.FieldDec{}
 
@@ -243,10 +206,6 @@ func (this *Parser) parseExpList() []ast.Exp {
     return args
 }
 
-/**
-*
-*
-*/
 func (this *Parser) parseNotExp() ast.Exp {
     exp := this.parseAtomExp()
     for this.current.Kind == TOKEN_DOT||
@@ -325,6 +284,7 @@ func (this *Parser) parseAndExp() ast.Exp {
     }
     return left
 }
+
 func (this *Parser) parseExp() ast.Exp {
     left := this.parseAndExp()
     for this.current.Kind == TOKEN_AND {
@@ -335,9 +295,6 @@ func (this *Parser) parseExp() ast.Exp {
     return left
 }
 
-/**
-*
-*/
 func (this *Parser) parseStatement() ast.Stm {
     switch this.current.Kind {
     case TOKEN_LBRACE:
@@ -398,9 +355,6 @@ func (this *Parser) parseStatement() ast.Stm {
     return nil
 }
 
-/**
-*
-*/
 func (this *Parser) parseStatements() []ast.Stm {
     stms := []ast.Stm{}
     for this.skipLine(); this.current.Kind == TOKEN_LBRACE ||
@@ -421,10 +375,6 @@ func (this *Parser) parseVarDec() *ast.VarDec {
     return &ast.VarDec{tp, id}
 }
 
-/**
-*
-*
-*/
 func (this *Parser) parseVarDecs() []*ast.VarDec {
     decs := []*ast.VarDec{}
     for this.skipLine(); this.current.Kind == TOKEN_VAR; this.skipLine() {
@@ -433,10 +383,6 @@ func (this *Parser) parseVarDecs() []*ast.VarDec {
     return decs
 }
 
-/**
-*
-*
-*/
 func (this *Parser) parseMethod() ast.Func {
     this.skipLine()
 
@@ -462,10 +408,6 @@ func (this *Parser) parseMethod() ast.Func {
     return &ast.MethodSingle{firstarg, bindingType, method_name, formals,rettype ,locals, stms, retExp}
 }
 
-/**
-*
-*
-*/
 func (this *Parser) parseMethods() []ast.Func {
     methods := []ast.Func{}
     for this.skipLine(); this.current.Kind == TOKEN_FUNC; this.skipLine() {
@@ -475,9 +417,6 @@ func (this *Parser) parseMethods() []ast.Func {
     return methods
 }
 
-/**
-*
-*/
 func (this *Parser) parseMainFunc() ast.MainFunc {
     this.eatToken(TOKEN_FUNC)
     this.eatToken(TOKEN_MAIN)
@@ -491,10 +430,6 @@ func (this *Parser) parseMainFunc() ast.MainFunc {
     return &ast.MainFuncSingle{stm}
 }
 
-/**
-*
-*
-*/
 func (this *Parser) parseProgram() ast.Prog {
     this.skipLine()
     strdecs := this.parseStrDecs()
@@ -503,11 +438,8 @@ func (this *Parser) parseProgram() ast.Prog {
     return &ast.ProgramSingle{mainfunc, nil, strdecs, methods}
 }
 
-/**
-*
-*
-*/
 func (this *Parser) Parser() ast.Prog {
     p := this.parseProgram()
     return p
 }
+*/

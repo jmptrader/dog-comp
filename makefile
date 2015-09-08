@@ -1,4 +1,4 @@
 all:
 	ctags -R
 	gofmt -w *.go
-	go build
+	go build -gcflags "-N -l"

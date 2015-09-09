@@ -1,0 +1,9 @@
+*.swp
+*.bak
+*.taghl
+tags
+*.out
+*_test
+*~
+*.o
+/bin

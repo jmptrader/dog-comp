@@ -4,9 +4,9 @@ import (
 //"container/list"
 )
 
-type Struct interface {
+type Class interface {
 	accept(v Visitor)
-	_struct()
+	_class()
 }
 
 type Dec interface {
@@ -19,17 +19,17 @@ type Exp interface {
 	_exp()
 }
 
-type MainFunc interface {
+type MainClass interface {
 	accept(v Visitor)
-	_mainfunc()
+	_mainclass()
 }
 
-type Func interface {
+type Method interface {
 	accept(v Visitor)
-	_func()
+	_method()
 }
 
-type Prog interface {
+type Program interface {
 	accept(v Visitor)
 	_prog()
 }
@@ -45,72 +45,53 @@ type Type interface {
 }
 
 /*Dec*/ /*{{{*/
-
-//VarDec  /*{{{*/
-type VarDec struct {
-	Tp   Type
-	Name string
+type DecSingle struct {
+    Tp Type
+    Name string
+    IsField bool
 }
 
-func (this *VarDec) accept(v Visitor) {
-	v.visit(this)
-}
-func (this *VarDec) _dec() {
+func (this *DecSingle) accept(v Visitor) {
+    v.visit(this)
 }
 
+func (this *DecSingle) _dec() {
+}
 /*}}}*/
 
-//FieldDec /*{{{*/
-type FieldDec struct {
-	Tp   Type
-	Name string
+type MainClassSingle struct {
+    Name string
+    Args string
+    Stms Stm
 }
 
-func (this *FieldDec) accept(v Visitor) {
-	v.visit(this)
-}
-func (this *FieldDec) _dec() {
+func (this *MainClassSingle) accept(v Visitor) {
+    v.visit(this)
 }
 
+func (this *MainClassSingle) _mainclass(){
+}
+
+/* ClassSingle {{{*/
+type ClassSingle struct {
+    Name string
+    Extends string
+    Decs []Dec
+    Methods []Method
+}
+func (this *ClassSingle) accept(v Visitor) {
+    v.visit(this)
+}
+func (this *ClassSingle) _class(){
+}
 /*}}}*/
 
-//StructDec    /*{{{*/
-type StructDec struct {
-	Name   string
-	Fields []*FieldDec
-}
-
-func (this *StructDec) accept(v Visitor) {
-	v.visit(this)
-}
-func (this *StructDec) _dec() {
-}
-
-/*}}}*/
-
-/*}}}*/
-
-/*MainFunc*/ /*{{{*/
-type MainFuncSingle struct {
-	PrintStm Stm
-}
-
-func (this *MainFuncSingle) accept(v Visitor) {
-	v.visit(this)
-}
-func (this *MainFuncSingle) _mainfunc() {
-}
-
-/*}}}*/
-
-//Func  /*{{{*/
+//Method  /*{{{*/
 type MethodSingle struct {
-	Firstarg    string
-	BindingType Type //??? or Type
-	Methodname  string
-	Formals     []*FieldDec
-	RetType     Type
-	VarDecs     []*VarDec
+    RetType Type
+    Name string
+	Formals     []Dec
+    Locals      []Dec
 	Stms        []Stm
 	RetExp      Exp
 }
@@ -118,17 +99,15 @@ type MethodSingle struct {
 func (this *MethodSingle) accept(v Visitor) {
 	v.visit(this)
 }
-func (this *MethodSingle) _func() {
+func (this *MethodSingle) _method() {
 }
 
 /*}}}*/
 
 /*Prog*/ /*{{{*/
 type ProgramSingle struct {
-	Mfunc   MainFunc
-	VarDecs []*VarDec
-	StrDecs []*StructDec
-	Methods []Func
+	Mainclass   MainClass
+	Classes []Class
 }
 
 func (this *ProgramSingle) accept(v Visitor) {
@@ -196,6 +175,7 @@ type Call struct {
 	Callee     Exp
 	MethodName string
 	ArgsList   []Exp
+    Firsttype string
 	ArgsType   []Type
 	Rt         Type
 }
@@ -236,6 +216,7 @@ func (this *True) _exp() {
 type Id struct {
 	Name string
 	Tp   Type
+    IsField bool
 }
 
 func (this *Id) accept(v Visitor) {
@@ -248,14 +229,14 @@ func (this *Id) _exp() {
 
 //Exp.len /*{{{*/
 //len(arrayref)
-type Len struct {
+type Length struct {
 	Arrayref Exp
 }
 
-func (this *Len) accept(v Visitor) {
+func (this *Length) accept(v Visitor) {
 	v.visit(this)
 }
-func (this *Len) _exp() {
+func (this *Length) _exp() {
 }
 
 /*}}}*/
@@ -276,7 +257,6 @@ func (this *Lt) _exp() {
 /*}}}*/
 
 //Exp.NewIntArray   /*{{{*/
-// make([]int, size)
 type NewIntArray struct {
 	Size Exp
 }
@@ -290,7 +270,6 @@ func (this *NewIntArray) _exp() {
 /*}}}*/
 
 //Exp.NewObject /*{{{*/
-// new(id)
 type NewObject struct {
 	Name string
 }
@@ -344,6 +323,17 @@ func (this *Sub) _exp() {
 
 /*}}}*/
 
+type This struct {
+}
+
+func (this *This) accept(v Visitor) {
+    v.visit(this)
+}
+
+func (this *This) _exp() {
+}
+
+
 //Exp end/*}}}*/
 
 //Stm   /*{{{*/
@@ -353,6 +343,7 @@ type Assign struct {
 	Name string
 	E    Exp
 	Tp   Type
+    IsField bool
 }
 
 func (this *Assign) accept(v Visitor) {
@@ -363,20 +354,6 @@ func (this *Assign) _stm() {
 
 /*}}}*/
 
-//Stm.Derive    /*{{{*/
-type Derive struct {
-	Name string
-	E    Exp
-	Tp   Type
-}
-
-func (this *Derive) accept(v Visitor) {
-	v.visit(this)
-}
-func (this *Derive) _stm() {
-}
-
-/*}}}*/
 
 //Stm.AssignArray   /*{{{*/
 type AssignArray struct {
@@ -385,6 +362,7 @@ type AssignArray struct {
 	Index Exp
 	E     Exp
 	Tp    Type
+    IsField bool
 }
 
 func (this *AssignArray) accept(v Visitor) {
@@ -437,15 +415,14 @@ func (this *Print) _stm() {
 /*}}}*/
 
 //Stm.For   /*{{{*/
-type For struct {
-	Condition Exp
-	Body      Stm
+type While struct {
+    E Exp
+    Body Stm
 }
-
-func (this *For) accept(v Visitor) {
+func (this *While) accept(v Visitor) {
 	v.visit(this)
 }
-func (this *For) _stm() {
+func (this *While) _stm() {
 }
 
 /*}}}*/

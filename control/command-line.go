@@ -120,7 +120,14 @@ var all_Arg = []Arg{
     "dump the result of lexical analysis",
     EMPTY,
     func(c interface{}){
-        Control_Lexer_dump = true;
+        Control_Lexer_dump = true
+    }},
+    {"testlexer",
+    "",
+    "whether or not to test the lexer",
+    EMPTY,
+    func(c interface{}){
+        Control_Lexer_test = true
     }},
     {"output",
     "<outfile>",

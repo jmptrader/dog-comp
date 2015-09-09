@@ -1,5 +1,6 @@
 package ast
 
+/*
 import (
 	"../util"
 	"fmt"
@@ -263,9 +264,6 @@ func (this *PrettyPrintVisitor) visitType(e Type) {
 	}
 }
 
-/**
-* Implements the Visitor
- */
 func (this *PrettyPrintVisitor) visit(e Acceptable) {
 	switch v := e.(type) {
 	case Dec:
@@ -288,3 +286,4 @@ func (this *PrettyPrintVisitor) visit(e Acceptable) {
 func (this *PrettyPrintVisitor) DumpProg(e Acceptable) {
 	this.visit(e)
 }
+*/

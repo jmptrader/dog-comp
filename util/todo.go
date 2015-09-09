@@ -6,6 +6,6 @@ import (
 )
 
 func Todo() {
-    fmt.Printf("TODO\n")
+    fmt.Printf("TODO>\n")
     os.Exit(0)
 }

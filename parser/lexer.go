@@ -76,7 +76,38 @@ func (this *Lexer) expectIdOrKey(c byte) *Token {
     }
 }
 
-func (this *Lexer) dealNum(c byte) string {
+func (this *Lexer) lex_Comments(c byte){
+    ex := this.buf[this.fp]
+    this.fp++
+    if ex == '/'{
+        for ex != '\n' &&  this.fp <len(this.buf){
+            ex = this.buf[this.fp]
+            this.fp++
+        }
+        if this.fp == len(this.buf) {
+            this.fp--
+            return
+        }else {
+            this.lineNum++
+        }
+    }else if ex == '*'{
+        ex = this.buf[this.fp]
+        for (c != '*'||ex != '/') && this.fp <len(this.buf) {
+            c = ex
+            ex = this.buf[this.fp]
+            this.fp++
+        }
+        if this.fp == len(this.buf) {
+            fmt.Println("error")
+            os.Exit(0)
+        }
+    }else {
+        fmt.Println("error")
+        os.Exit(0)
+    }
+}
+
+func (this *Lexer) lex_Num(c byte) string {
     var s string
     s += string(c)
 
@@ -190,13 +221,11 @@ func (this *Lexer) nextTokenInternal() *Token {
         fallthrough
     case '9':
         if this.s == "" {
-            return newToken(TOKEN_NUM, this.dealNum(c), this.lineNum)
+            return newToken(TOKEN_NUM, this.lex_Num(c), this.lineNum)
         }
         this.s += string(c)
     case '/':
-        // this.dealComments(c)
-        fmt.Println("TODO")
-        os.Exit(0)
+        this.lex_Comments(c)
     default:
         this.s += string(c)
     }

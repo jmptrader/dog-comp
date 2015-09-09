@@ -6,6 +6,7 @@ import (
     "../ast"
     "../util"
     //"container/list"
+    "../control"
     "strconv"
 )
 
@@ -13,6 +14,7 @@ type Parser struct {
     lexer   *Lexer
     current *Token
     currentNext *Token
+    currentType ast.Type
     isSpecial bool
     isField bool
     linenum int
@@ -28,9 +30,11 @@ func NewParse(fname string, buf []byte) *Parser {
 }
 
 func (this *Parser) advance() {
+    if control.Control_Lexer_dump == true {
+        fmt.Println(this.current.ToString())
+    }
     this.linenum = this.current.LineNum
     this.current = this.lexer.NextToken()
-    fmt.Println(this.current.ToString())
 }
 
 func (this *Parser) eatToken(kind int) {
@@ -45,7 +49,14 @@ func (this *Parser) parseType() ast.Type {
     switch this.current.Kind {
     case TOKEN_INT:
         this.eatToken(TOKEN_INT)
-        return &ast.Int{}
+        if this.current.Kind == TOKEN_LBRACK {
+            this.eatToken(TOKEN_LBRACK)
+            this.eatToken(TOKEN_RBRACK)
+            this.currentType = &ast.IntArray{}
+            return this.currentType
+        }
+        this.currentType = &ast.Int{}
+        return this.currentType
     case TOKEN_BOOLEAN:
         this.eatToken(TOKEN_BOOLEAN)
         return &ast.Boolean{}
@@ -326,7 +337,7 @@ func (this *Parser) parseStatement() ast.Stm {
                 assign.E = exp
                 return assign
             case TOKEN_LBRACK:
-                this.eatToken(TOKEN_LBRACE)
+                this.eatToken(TOKEN_LBRACK)
                 index := this.parseExp()
                 this.eatToken(TOKEN_RBRACK)
                 this.eatToken(TOKEN_ASSIGN)
@@ -527,6 +538,7 @@ func (this *Parser) parseMainClass() ast.MainClass {
 func (this *Parser) parseProgram() ast.Program {
     main_class := this.parseMainClass()
     classes := this.parseClassDecls()
+    this.eatToken(TOKEN_EOF)
     return &ast.ProgramSingle{main_class, classes}
 }
 

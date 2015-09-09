@@ -134,13 +134,12 @@ func (this *Lexer) lex_Num(c byte) string {
 }
 
 func (this *Lexer) nextTokenInternal() *Token {
-
-    c := this.buf[this.fp]
-    this.fp++
-
     if this.fp == len(this.buf) {
         return newToken(TOKEN_EOF, "EOF", this.lineNum)
     }
+
+    c := this.buf[this.fp]
+    this.fp++
 
     for c == '\t'||'\n'==c||'\r'==c {
         if c == '\n' {

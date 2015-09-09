@@ -4,11 +4,11 @@ import (
 	//"./ast"
 	"./control"
 	"./parser"
-	"./util"
+	//"./util"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"runtime"
+	//"runtime"
 )
 
 func main() {
@@ -42,6 +42,6 @@ func main() {
 
 	//pp := ast.NewPP()
 	//pp.DumpProg(Ast)
-	_, filename, line, _ := runtime.Caller(0)
-	util.Bug("test bug", filename, line)
+	//_, filename, line, _ := runtime.Caller(0)
+	//util.Bug("test bug", filename, line)
 }

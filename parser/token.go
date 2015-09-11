@@ -23,12 +23,12 @@ func initTokenMap() {
 	tokenMap["&&"] = TOKEN_AND
 	tokenMap["="] = TOKEN_ASSIGN
 	tokenMap["boolean"] = TOKEN_BOOLEAN
-    tokenMap["class"] = TOKEN_CLASS
+	tokenMap["class"] = TOKEN_CLASS
 	tokenMap[","] = TOKEN_COMMER
 	tokenMap["."] = TOKEN_DOT
 	tokenMap["else"] = TOKEN_ELSE
 	tokenMap["EOF"] = TOKEN_EOF
-    tokenMap["extends"] = TOKEN_EXTENDS
+	tokenMap["extends"] = TOKEN_EXTENDS
 	tokenMap["false"] = TOKEN_FALSE
 	//id
 	tokenMap["if"] = TOKEN_IF
@@ -42,20 +42,20 @@ func initTokenMap() {
 	tokenMap["new"] = TOKEN_NEW
 	tokenMap["!"] = TOKEN_NOT
 	//num
-    tokenMap["out"] = TOKEN_OUT
+	tokenMap["out"] = TOKEN_OUT
 	tokenMap["println"] = TOKEN_PRINTLN
-    tokenMap["public"] = TOKEN_PUBLIC
+	tokenMap["public"] = TOKEN_PUBLIC
 	tokenMap["}"] = TOKEN_RBRACE
 	tokenMap["]"] = TOKEN_RBRACK
 	tokenMap["return"] = TOKEN_RETURN
 	tokenMap[")"] = TOKEN_RPAREN
 	tokenMap[";"] = TOKEN_SEMI
-    tokenMap["static"] = TOKEN_STATIC
-    tokenMap["String"] = TOKEN_STRING
+	tokenMap["static"] = TOKEN_STATIC
+	tokenMap["String"] = TOKEN_STRING
 	tokenMap["-"] = TOKEN_SUB
-    tokenMap["System"] = TOKEN_SYSTEM
-    tokenMap["this"] = TOKEN_THIS
-    tokenMap["*"] = TOKEN_TIMES
+	tokenMap["System"] = TOKEN_SYSTEM
+	tokenMap["this"] = TOKEN_THIS
+	tokenMap["*"] = TOKEN_TIMES
 	tokenMap["true"] = TOKEN_TRUE
 	tokenMap["void"] = TOKEN_VOID
 	tokenMap["while"] = TOKEN_WHILE
@@ -70,7 +70,7 @@ func initTokenMap() {
 	tMap[TOKEN_DOT] = "TOKEN_DOT"
 	tMap[TOKEN_ELSE] = "TOKEN_ELSE"
 	tMap[TOKEN_EOF] = "TOKEN_EOF"
-    tMap[TOKEN_EXTENDS] = "TOKEN_EXTENDS"
+	tMap[TOKEN_EXTENDS] = "TOKEN_EXTENDS"
 	tMap[TOKEN_FALSE] = "TOKEN_FALSE"
 	tMap[TOKEN_IF] = "TOKEN_IF"
 	tMap[TOKEN_INT] = "TOKEN_INT"
@@ -84,23 +84,23 @@ func initTokenMap() {
 	tMap[TOKEN_NEW] = "TOKEN_NEW"
 	tMap[TOKEN_NUM] = "TOKEN_NUM"
 	tMap[TOKEN_NOT] = "TOKEN_NOT"
-    tMap[TOKEN_OUT] = "TOKEN_OUT"
+	tMap[TOKEN_OUT] = "TOKEN_OUT"
 	tMap[TOKEN_PRINTLN] = "TOKEN_PRINTLN"
-    tMap[TOKEN_PUBLIC] = "TOKEN_PUBLIC"
+	tMap[TOKEN_PUBLIC] = "TOKEN_PUBLIC"
 	tMap[TOKEN_RBRACE] = "TOKEN_RBRACE"
 	tMap[TOKEN_RBRACK] = "TOKEN_RBRACK"
 	tMap[TOKEN_RETURN] = "TOKEN_RETURN"
 	tMap[TOKEN_RPAREN] = "TOKEN_RPAREN"
 	tMap[TOKEN_SEMI] = "TOKEN_SEMI"
-    tMap[TOKEN_STATIC] = "TOKEN_STATIC"
-    tMap[TOKEN_STRING] = "TOKEN_STRING"
+	tMap[TOKEN_STATIC] = "TOKEN_STATIC"
+	tMap[TOKEN_STRING] = "TOKEN_STRING"
 	tMap[TOKEN_SUB] = "TOKEN_SUB"
-    tMap[TOKEN_SYSTEM] = "TOKEN_SYSTEM"
+	tMap[TOKEN_SYSTEM] = "TOKEN_SYSTEM"
 	tMap[TOKEN_TRUE] = "TOKEN_TRUE"
-    tMap[TOKEN_THIS] = "TOKEN_THIS"
-    tMap[TOKEN_TIMES] = "TOKEN_TIMES"
+	tMap[TOKEN_THIS] = "TOKEN_THIS"
+	tMap[TOKEN_TIMES] = "TOKEN_TIMES"
 	tMap[TOKEN_VOID] = "TOKEN_VOID"
-    tMap[TOKEN_WHILE] = "TOKEN_WHILE"
+	tMap[TOKEN_WHILE] = "TOKEN_WHILE"
 
 }
 
@@ -121,7 +121,7 @@ const (
 	TOKEN_ID
 	TOKEN_IF
 	TOKEN_INT
-    TOKEN_LENGTH
+	TOKEN_LENGTH
 	TOKEN_LBRACE
 	TOKEN_LBRACK
 	TOKEN_LPAREN
@@ -130,23 +130,23 @@ const (
 	TOKEN_NEW
 	TOKEN_NOT
 	TOKEN_NUM
-    TOKEN_OUT
+	TOKEN_OUT
 	TOKEN_PRINTLN
-    TOKEN_PUBLIC
+	TOKEN_PUBLIC
 	TOKEN_RBRACE
 	TOKEN_RBRACK
 	TOKEN_RETURN
 	TOKEN_RPAREN
 	TOKEN_SEMI
-    TOKEN_STATIC
-    TOKEN_STRING
+	TOKEN_STATIC
+	TOKEN_STRING
 	TOKEN_SUB
-    TOKEN_SYSTEM
-    TOKEN_THIS
-    TOKEN_TIMES
+	TOKEN_SYSTEM
+	TOKEN_THIS
+	TOKEN_TIMES
 	TOKEN_TRUE
 	TOKEN_VOID
-    TOKEN_WHILE
+	TOKEN_WHILE
 )
 
 func (this *Token) ToString() string {

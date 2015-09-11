@@ -14,10 +14,10 @@ class Doit {
         int i;
 
         int[] j;
-        sum&&i;
         
 
      Doit d1;
+        sum = sum&&i;
      d1 =new Doit();
      d1 =new Doit();
      d1 =new Doit();

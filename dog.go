@@ -1,15 +1,18 @@
 package main
 
 import (
-	//"./ast"
+	"./ast"
 	"./control"
+	"./elaborator"
 	"./parser"
-	//"./util"
 	"fmt"
 	"io/ioutil"
 	"os"
-	//"runtime"
 )
+
+func dog_Parser(filename string, buf []byte) ast.Program {
+	return parser.NewParse(filename, buf).Parser()
+}
 
 func main() {
 	args := os.Args[1:len(os.Args)]
@@ -18,13 +21,11 @@ func main() {
 		control.Usage()
 		os.Exit(0)
 	}
-
 	buf, err := ioutil.ReadFile(filename)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(0)
 	}
-
 	if control.Control_Lexer_test == true {
 		lex := parser.NewLexer(filename, buf)
 		tk := lex.NextToken()
@@ -35,13 +36,9 @@ func main() {
 		fmt.Println(tk.ToString())
 		os.Exit(0)
 	}
-
-	pser := parser.NewParse(filename, buf)
-	Ast := pser.Parser()
-	fmt.Printf("%T\n", Ast)
-
-	//pp := ast.NewPP()
-	//pp.DumpProg(Ast)
-	//_, filename, line, _ := runtime.Caller(0)
-	//util.Bug("test bug", filename, line)
+	Ast := dog_Parser(filename, buf)
+	if control.Control_Ast_dumpAst == true {
+		ast.NewPP().DumpProg(Ast)
+	}
+	elaborator.Elaborate(Ast)
 }

@@ -1,10 +1,7 @@
 package ast
 
-/*
 import (
-	"../util"
 	"fmt"
-	"runtime"
 	"strconv"
 )
 
@@ -26,14 +23,12 @@ func (this *PrettyPrintVisitor) indent() {
 func (this *PrettyPrintVisitor) unIndent() {
 	this.indentLevel -= 2
 	if this.indentLevel <= 0 {
-		_, filename, line, _ := runtime.Caller(0)
-		util.Bug("indent error", filename, line)
+        panic("indent error")
 	}
 }
 
-func (this *PrettyPrintVisitor) sayln() {
-	this.say("\n")
-	this.printSpeaces()
+func (this *PrettyPrintVisitor) sayln(s string) {
+	fmt.Println(s)
 }
 func (this *PrettyPrintVisitor) say(s string) {
 	fmt.Print(s)
@@ -48,116 +43,139 @@ func (this *PrettyPrintVisitor) printSpeaces() {
 
 func (this *PrettyPrintVisitor) visitDec(e Dec) {
 	switch v := e.(type) {
-	case *VarDec:
-		this.say("var ")
-		this.say(v.Name + " ")
+	case *DecSingle:
 		v.Tp.accept(this)
-	case *FieldDec:
-		this.say(v.Name + " ")
-		v.Tp.accept(this)
-	case *StructDec:
-		this.say("type " + v.Name + " struct {")
-		this.indent()
-		for _, fdec := range v.Fields {
-			fdec.accept(this)
-			this.sayln()
-		}
-		this.unIndent()
-		this.sayln()
-		this.say("}")
+		this.say(" " + v.Name)
+	default:
+		panic("wrong type")
 	}
 }
-func (this *PrettyPrintVisitor) visitFunc(e Func) {
+
+func (this *PrettyPrintVisitor) visitMethod(e Method) {
 	switch v := e.(type) {
 	case *MethodSingle:
-		this.say("func (" + v.Firstarg + " *")
-		v.BindingType.accept(this)
-		this.say(") " + v.Methodname + "(")
-		commer := ""
-		for _, vv := range v.Formals {
-			this.say(commer)
-			commer = ","
-			vv.accept(this)
-		}
-		this.say(") ")
+		this.indent()
+		this.say("  public ")
 		v.RetType.accept(this)
-		this.say(" {\n")
-		this.indent()
-		for _, vardec := range v.VarDecs {
-			this.printSpeaces()
-			vardec.accept(this)
-			this.sayln()
+		this.say(" " + v.Name + "(")
+		for i, dec := range v.Formals {
+			switch d := dec.(type) {
+			case *DecSingle:
+				if i != 0 {
+					this.say(",")
+				}
+				d.accept(this)
+			default:
+				panic("wrong type")
+			}
 		}
+		this.sayln(")")
+		this.sayln("  {")
+		for _, dec := range v.Locals {
+			switch d := dec.(type) {
+			case *DecSingle:
+				this.printSpeaces()
+				d.Tp.accept(this)
+				this.sayln(" " + d.Name + ";")
+			default:
+				panic("wrong type")
+			}
+		}
+		this.say("\n")
 		for _, stm := range v.Stms {
-			this.printSpeaces()
 			stm.accept(this)
-			this.sayln()
 		}
-
-		this.say("return ")
+		this.say("    return ")
 		v.RetExp.accept(this)
+		this.sayln(";")
+		this.sayln("  }")
 		this.unIndent()
-		this.sayln()
-		this.say("}\n")
-
 	default:
-		_, filename, line, _ := runtime.Caller(0)
-		util.Bug("Func need MethodSingle", filename, line)
+		panic("wrong type")
 	}
 }
-func (this *PrettyPrintVisitor) visitMain(e MainFunc) {
+
+func (this *PrettyPrintVisitor) visitClass(e Class) {
 	switch v := e.(type) {
-	case *MainFuncSingle:
-		this.say("func main() {")
-		this.indent()
-		this.sayln()
-		v.PrintStm.accept(this)
-		this.unIndent()
-		this.sayln()
-		this.say("}\n")
+	case *ClassSingle:
+		this.say("class " + v.Name)
+		if v.Extends != "" {
+			this.sayln(" extends " + v.Extends)
+		} else {
+			this.sayln("")
+		}
+		this.sayln("{")
+		for _, dec := range v.Decs {
+			switch d := dec.(type) {
+			case *DecSingle:
+				this.say("  ")
+				d.Tp.accept(this)
+				this.say(" ")
+				this.sayln(d.Name + ";")
+			default:
+				panic("wrong type")
+			}
+		}
+		for _, mtd := range v.Methods {
+			switch m := mtd.(type) {
+			case *MethodSingle:
+				m.accept(this)
+			default:
+				panic("wrong type")
+			}
+		}
+		this.sayln("}")
 	default:
+		panic("wrong type")
 	}
 }
 
-func (this *PrettyPrintVisitor) visitProg(e Prog) {
+func (this *PrettyPrintVisitor) visitMain(e MainClass) {
+	switch v := e.(type) {
+	case *MainClassSingle:
+		this.sayln("class " + v.Name)
+		this.sayln("{")
+		this.sayln("  public static void main (String [] " + v.Args + ")")
+		this.sayln("  {")
+		this.indent()
+		v.Stms.accept(this)
+		this.unIndent()
+		this.sayln("  }")
+		this.sayln("}")
+	default:
+		panic("wrong type")
+	}
+}
+
+func (this *PrettyPrintVisitor) visitProg(e Program) {
 	switch v := e.(type) {
 	case *ProgramSingle:
-		this.sayln()
-		for _, vv := range v.VarDecs {
+		v.Mainclass.accept(this)
+		for _, vv := range v.Classes {
 			vv.accept(this)
-			this.sayln()
 		}
-		for _, vv := range v.StrDecs {
-			vv.accept(this)
-			this.sayln()
-		}
-		v.Mfunc.accept(this)
-        this.sayln()
-		for _, vv := range v.Methods {
-			vv.accept(this)
-			this.sayln()
-		}
+		fmt.Println("\n\n")
 	default:
-		_, filename, line, _ := runtime.Caller(0)
-		util.Bug("need ProgramSingle", filename, line)
+        panic("need ProgramSingle")
 	}
 }
 func (this *PrettyPrintVisitor) visitExp(e Exp) {
+	this.say("(")
 	switch v := e.(type) {
 	case *Add:
 		v.Left.accept(this)
-		this.say("+")
+		this.say(" + ")
 		v.Right.accept(this)
 	case *And:
 		v.Left.accept(this)
-		this.say("&&")
+		this.say(" && ")
 		v.Right.accept(this)
 	case *Times:
 		v.Left.accept(this)
-		this.say("*")
+		this.say(" * ")
 		v.Right.accept(this)
 	case *ArraySelect:
-		v.ArrayName.accept(this)
+		v.Arrayref.accept(this)
 		this.say("[")
 		v.Index.accept(this)
 		this.say("]")
@@ -177,20 +195,19 @@ func (this *PrettyPrintVisitor) visitExp(e Exp) {
 		this.say("true")
 	case *Id:
 		this.say(v.Name)
-	case *Len:
-		this.say("len(")
+	case *Length:
 		v.Arrayref.accept(this)
-		this.say(")")
+		this.say(".length")
 	case *Lt:
 		v.Left.accept(this)
-		this.say("<")
+		this.say(" < ")
 		v.Right.accept(this)
 	case *NewIntArray:
-		this.say("make([]int ")
+		this.say("new int[ ")
 		v.Size.accept(this)
-		this.say(")")
+		this.say("]")
 	case *NewObject:
-		this.say("new(" + v.Name + ")")
+		this.say("new " + v.Name + "()")
 	case *Not:
 		this.say("!")
 		v.E.accept(this)
@@ -198,56 +215,71 @@ func (this *PrettyPrintVisitor) visitExp(e Exp) {
 		this.say(strconv.Itoa(v.Value))
 	case *Sub:
 		v.Left.accept(this)
-		this.say("-")
+		this.say(" - ")
 		v.Right.accept(this)
+	case *This:
+		this.say("this")
 	default:
-		_, filename, line, _ := runtime.Caller(0)
-		util.Bug("Exp type error", filename, line)
+		fmt.Printf("%T\n", v)
+		panic("wrong type")
 
 	}
+	this.say(")")
 }
 func (this *PrettyPrintVisitor) visitStm(e Stm) {
 	switch v := e.(type) {
 	case *Assign:
+		this.printSpeaces()
 		this.say(v.Name)
-		this.say("=")
+		this.say(" = ")
 		v.E.accept(this)
-	case *Derive:
-		this.say(v.Name)
-		this.say(":=")
-		v.E.accept(this)
+		this.sayln(";")
 	case *AssignArray:
+		this.printSpeaces()
 		this.say(v.Name + "[")
 		v.Index.accept(this)
-		this.say("]=")
+		this.say("] = ")
 		v.E.accept(this)
+		this.sayln(";")
 	case *Block:
-		this.say("{")
+		this.printSpeaces()
+		this.sayln("{")
 		this.indent()
-		this.sayln()
-		for s, stm := range v.Stms {
+		for _, stm := range v.Stms {
 			stm.accept(this)
-			if s != len(v.Stms)-1 {
-				this.sayln()
-			}
 		}
 		this.unIndent()
-		this.sayln()
-		this.say("}")
+		this.printSpeaces()
+		this.sayln("}")
 	case *If:
-		this.say("if ")
+		this.printSpeaces()
+		this.say("if (")
 		v.Condition.accept(this)
+		this.sayln(") {")
+		this.indent()
 		v.Thenn.accept(this)
-		this.say("else")
+		this.unIndent()
+		this.printSpeaces()
+		this.sayln("}else {")
+		this.indent()
 		v.Elsee.accept(this)
+		this.unIndent()
+		this.printSpeaces()
+		this.sayln("}")
 	case *Print:
-		this.say("fmt.Println(")
+		this.printSpeaces()
+		this.say("System.out.println(")
 		v.E.accept(this)
 		this.say(")")
-	case *For:
-		this.say("for ")
-		v.Condition.accept(this)
+		this.sayln(";")
+	case *While:
+		this.printSpeaces()
+		this.say("while (")
+		v.E.accept(this)
+		this.sayln(")")
+		this.indent()
 		v.Body.accept(this)
+		this.unIndent()
 	}
 }
 
@@ -256,9 +288,9 @@ func (this *PrettyPrintVisitor) visitType(e Type) {
 	case *Int:
 		this.say("int")
 	case *Boolean:
-		this.say("bool")
+		this.say("boolean")
 	case *IntArray:
-		this.say("[]int")
+		this.say("int[]")
 	case *ClassType:
 		this.say(v.Name)
 	}
@@ -268,11 +300,11 @@ func (this *PrettyPrintVisitor) visit(e Acceptable) {
 	switch v := e.(type) {
 	case Dec:
 		this.visitDec(v)
-	case Func:
-		this.visitFunc(v)
-	case MainFunc:
+	case Class:
+		this.visitClass(v)
+	case MainClass:
 		this.visitMain(v)
-	case Prog:
+	case Program:
 		this.visitProg(v)
 	case Exp:
 		this.visitExp(v)
@@ -280,10 +312,13 @@ func (this *PrettyPrintVisitor) visit(e Acceptable) {
 		this.visitStm(v)
 	case Type:
 		this.visitType(v)
+	case Method:
+		this.visitMethod(v)
+	default:
+		panic("wrong type")
 	}
 }
 
 func (this *PrettyPrintVisitor) DumpProg(e Acceptable) {
 	this.visit(e)
 }
-*/

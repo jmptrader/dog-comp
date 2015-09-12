@@ -1,6 +1,7 @@
 package elaborator
 import (
     "../ast"
+    "fmt"
 )
 
 var class_table map[string]*ClassBinding
@@ -54,4 +55,12 @@ func ct_getMethodType(class_name string, mid string)*MethodType {
 func ct_putMethodType(class_name string, mid string, tp *MethodType) {
     cb := class_table[class_name]
     cb.put_MethodType(mid, tp)
+}
+
+func classTable_dump() {
+    for name, c :=range class_table {
+        fmt.Printf(name)
+        classBinding_dump(c)
+        fmt.Println("")
+    }
 }

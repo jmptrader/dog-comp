@@ -19,3 +19,6 @@ var Control_CodeGen_codegen CodeGen_Kind = C
 
 var Control_Ast_test bool = false
 var Control_Ast_dumpAst bool = false
+
+var Control_Elab_classTable bool = false
+var Control_Elab_methodTable bool = false

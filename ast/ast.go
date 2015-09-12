@@ -9,6 +9,7 @@ type Class interface {
 type Dec interface {
 	accept(v Visitor)
 	GetDecType()int
+    String()string
 }
 
 type Exp interface {
@@ -39,6 +40,7 @@ type Stm interface {
 type Type interface {
 	accept(v Visitor)
 	Gettype()int
+    String()string
 }
 
 /*------------------ struct -----------------------*/
@@ -56,6 +58,10 @@ func (this *DecSingle) accept(v Visitor) {
 
 func (this *DecSingle) GetDecType()int {
     return this.Tp.Gettype()
+}
+func (this *DecSingle) String()string {
+    s := this.Name+" " + this.Tp.String()
+    return s
 }
 
 /*}}}*/
@@ -715,7 +721,7 @@ func (this *ClassType) Gettype()int {
 }
 
 func (this *ClassType)String()string {
-    return this.Name
+    return "@"+this.Name
 }
 
 /*}}}*/

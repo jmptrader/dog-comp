@@ -2,6 +2,7 @@ package elaborator
 
 import (
     "../ast"
+    "../control"
 )
 
 var current_class string
@@ -35,6 +36,9 @@ func elabMethod(mth ast.Method){
     if m, ok := mth.(*ast.MethodSingle); ok {
         initMethodTable()
         mt_put(m.Formals, m.Locals)
+        if control.Control_Elab_methodTable == true {
+            methodTable_dump()
+        }
         for _, stm := range m.Stms {
             elaborate(stm)
         }
@@ -378,6 +382,7 @@ func buildClass(c ast.Class) {
 func elabProg(p ast.Program) {
     switch v:=p.(type){
     case *ast.ProgramSingle:
+        //setp1 : duild classtable
         buildMainClass(v.Mainclass)
         for _, c := range v.Classes{
             buildClass(c)
@@ -386,8 +391,8 @@ func elabProg(p ast.Program) {
         for _, c :=range v.Classes {
             elaborate(c)
         }
-        for _, c := range v.Classes {
-            elaborate(c)
+        if control.Control_Elab_classTable == true {
+            classTable_dump()
         }
     default:
         panic("wrong type")

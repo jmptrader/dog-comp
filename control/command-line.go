@@ -103,7 +103,7 @@ var all_Arg = []Arg{
         case string:
             if c == "ast" {
                 Control_Ast_dumpAst = true
-            }else {
+            }else{
                 argException("-dump {ast}")
             }
         default:
@@ -111,10 +111,22 @@ var all_Arg = []Arg{
         }
     }},
     {"elab",
-    "<arg>",
+    "{classtable|methodtable}",
     "dump information about elaboration",
     STRING,
-    nil},
+    func(c interface{}){
+        if s, ok := c.(string); ok {
+            if s == "classtable" {
+                Control_Elab_classTable = true
+            }else if s == "methodtable" {
+                Control_Elab_methodTable = true
+            }else {
+                argException("-elab {classtable|methodtable}")
+            }
+        }else {
+            argException("bad argument")
+        }
+    }},
     {"lex",
     "",
     "dump the result of lexical analysis",
@@ -166,8 +178,14 @@ func Do_arg(args []string) string{
                 util.Todo()
             case INT:
                 util.Todo()
+                if i >= len(args) {
+                    argException("need <INT>")
+                }
             case STRING:
                 i++
+                if i >= len(args) {
+                    argException("need <STRING>")
+                }
                 theArg := args[i]
                 (arg.action)(theArg)
             case STRINGLIST:

@@ -1,6 +1,8 @@
 package elaborator
+
 import (
     "../ast"
+    "fmt"
 )
 var method_table map[string]ast.Type
 
@@ -29,4 +31,13 @@ func mt_put(formals []ast.Dec, locals []ast.Dec) {
     }
     f(formals)
     f(locals)
+}
+
+func methodTable_dump() {
+    for name, t := range method_table {
+        fmt.Println(name)
+        fmt.Print(" ")
+        fmt.Println(t)
+        fmt.Print("\n")
+    }
 }

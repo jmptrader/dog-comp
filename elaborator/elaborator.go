@@ -37,7 +37,7 @@ func elabMethod(mth ast.Method){
         initMethodTable()
         mt_put(m.Formals, m.Locals)
         if control.Control_Elab_methodTable == true {
-            methodTable_dump()
+            methodTable_dump(m.Name)
         }
         for _, stm := range m.Stms {
             elaborate(stm)

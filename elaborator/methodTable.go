@@ -33,11 +33,13 @@ func mt_put(formals []ast.Dec, locals []ast.Dec) {
     f(locals)
 }
 
-func methodTable_dump() {
-    for name, t := range method_table {
-        fmt.Println(name)
-        fmt.Print(" ")
+func methodTable_dump(name string) {
+    fmt.Println(name)
+    for id, t := range method_table {
+        fmt.Print("  ")
+        fmt.Print(id)
+        fmt.Print("  ")
         fmt.Println(t)
-        fmt.Print("\n")
     }
+    fmt.Print("\n")
 }

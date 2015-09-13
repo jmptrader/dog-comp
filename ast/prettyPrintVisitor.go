@@ -23,7 +23,7 @@ func (this *PrettyPrintVisitor) indent() {
 func (this *PrettyPrintVisitor) unIndent() {
 	this.indentLevel -= 2
 	if this.indentLevel <= 0 {
-        panic("indent error")
+		panic("indent error")
 	}
 }
 
@@ -156,7 +156,7 @@ func (this *PrettyPrintVisitor) visitProg(e Program) {
 		}
 		fmt.Println("\n\n")
 	default:
-        panic("need ProgramSingle")
+		panic("need ProgramSingle")
 	}
 }
 func (this *PrettyPrintVisitor) visitExp(e Exp) {

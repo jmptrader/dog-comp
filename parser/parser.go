@@ -1,10 +1,10 @@
 package parser
 
 import (
-	"fmt"
 	"../ast"
-	"../util"
 	"../control"
+	"../util"
+	"fmt"
 	"strconv"
 )
 
@@ -66,7 +66,7 @@ func (this *Parser) parseType() ast.Type {
 		this.eatToken(TOKEN_ID)
 		this.currentType = &ast.ClassType{name, ast.TYPE_CLASS}
 	}
-    return this.currentType
+	return this.currentType
 }
 
 func (this *Parser) parseFormalList() []ast.Dec {
@@ -110,13 +110,13 @@ func (this *Parser) parseAtomExp() ast.Exp {
 			this.advance()
 			s, _ := strconv.Atoi(num)
 			s = -s
-            n := new(ast.Num)
-            n.Value = s
-            n.LineNum = this.Linenum
+			n := new(ast.Num)
+			n.Value = s
+			n.LineNum = this.Linenum
 			//return &ast.Num{s, nil}
-            return n
+			return n
 		} else {
-            panic("error")
+			panic("error")
 		}
 	case TOKEN_LPAREN:
 		this.advance()
@@ -139,7 +139,7 @@ func (this *Parser) parseAtomExp() ast.Exp {
 	case TOKEN_ID:
 		id := this.current.Lexeme
 		this.advance()
-        return ast.Id_new(id, this.currentType, false, this.Linenum)
+		return ast.Id_new(id, this.currentType, false, this.Linenum)
 	case TOKEN_NEW:
 		this.advance()
 		switch this.current.Kind {
@@ -148,18 +148,18 @@ func (this *Parser) parseAtomExp() ast.Exp {
 			this.eatToken(TOKEN_LBRACK)
 			exp := this.parseExp()
 			this.eatToken(TOKEN_RBRACK)
-            return ast.NewIntArray_new(exp, this.Linenum)
+			return ast.NewIntArray_new(exp, this.Linenum)
 		case TOKEN_ID:
 			s := this.current.Lexeme
 			this.advance()
 			this.eatToken(TOKEN_LPAREN)
 			this.eatToken(TOKEN_RPAREN)
-            return ast.NewObject_new(s, this.Linenum)
+			return ast.NewObject_new(s, this.Linenum)
 		default:
-            panic("parser error")
+			panic("parser error")
 		}
 	default:
-        panic("parser error")
+		panic("parser error")
 	}
 	return nil
 }
@@ -191,7 +191,7 @@ func (this *Parser) parseNotExp() ast.Exp {
 			this.advance()
 			if this.current.Kind == TOKEN_LENGTH {
 				this.advance()
-                return ast.Length_new(exp, this.Linenum)
+				return ast.Length_new(exp, this.Linenum)
 			}
 			//else ast.Call
 			methodname := this.current.Lexeme
@@ -199,14 +199,14 @@ func (this *Parser) parseNotExp() ast.Exp {
 			this.eatToken(TOKEN_LPAREN)
 			args := this.parseExpList()
 			this.eatToken(TOKEN_RPAREN)
-            return ast.Call_new(exp, methodname, args, "", nil, nil, this.Linenum)
+			return ast.Call_new(exp, methodname, args, "", nil, nil, this.Linenum)
 		case TOKEN_LBRACK: //[exp]
 			this.advance()
 			index := this.parseExp()
 			this.eatToken(TOKEN_RBRACK)
-            return ast.ArraySelect_new(exp, index, this.Linenum)
+			return ast.ArraySelect_new(exp, index, this.Linenum)
 		default:
-            panic("need TOKEN_NOT or TOKEN_LBRACK")
+			panic("need TOKEN_NOT or TOKEN_LBRACK")
 		}
 	}
 	return exp
@@ -221,7 +221,7 @@ func (this *Parser) parseTimeExp() ast.Exp {
 		exp2 = this.parseTimeExp()
 	}
 	if exp2 != nil {
-        return ast.Not_new(exp2, this.Linenum)
+		return ast.Not_new(exp2, this.Linenum)
 	} else {
 		return this.parseNotExp()
 	}
@@ -234,7 +234,7 @@ func (this *Parser) parseAddSubExp() ast.Exp {
 	for this.current.Kind == TOKEN_TIMES {
 		this.advance()
 		right := this.parseTimeExp()
-        return ast.Times_new(left, right, this.Linenum)
+		return ast.Times_new(left, right, this.Linenum)
 	}
 	return left
 }
@@ -250,13 +250,13 @@ func (this *Parser) parseLtExp() ast.Exp {
 		case TOKEN_ADD:
 			this.advance()
 			right := this.parseAddSubExp()
-            return ast.Add_new(left, right, this.Linenum)
+			return ast.Add_new(left, right, this.Linenum)
 		case TOKEN_SUB:
 			this.advance()
 			right := this.parseAddSubExp()
-            return ast.Sub_new(left, right, this.Linenum)
+			return ast.Sub_new(left, right, this.Linenum)
 		default:
-            panic("need TOKEN_ADD or TOKEN_SUB")
+			panic("need TOKEN_ADD or TOKEN_SUB")
 		}
 	}
 	return left
@@ -269,7 +269,7 @@ func (this *Parser) parseAndExp() ast.Exp {
 	for this.current.Kind == TOKEN_LT {
 		this.advance()
 		right := this.parseLtExp()
-        return ast.Lt_new(left, right, this.Linenum)
+		return ast.Lt_new(left, right, this.Linenum)
 	}
 	return left
 }
@@ -281,7 +281,7 @@ func (this *Parser) parseExp() ast.Exp {
 	for this.current.Kind == TOKEN_AND {
 		this.advance()
 		right := this.parseAndExp()
-        return ast.And_new(left, right, this.Linenum)
+		return ast.And_new(left, right, this.Linenum)
 	}
 	return left
 }
@@ -292,7 +292,7 @@ func (this *Parser) parseStatement() ast.Stm {
 		this.eatToken(TOKEN_LBRACE)
 		stms := this.parseStatements()
 		this.eatToken(TOKEN_RBRACE)
-        return ast.Block_new(stms, this.Linenum)
+		return ast.Block_new(stms, this.Linenum)
 	case TOKEN_ID:
 		id := this.current.Lexeme
 		if this.isSpecial == true {
@@ -315,9 +315,9 @@ func (this *Parser) parseStatement() ast.Stm {
 				e := this.parseExp()
 				this.eatToken(TOKEN_SEMI)
 				this.isSpecial = false
-                return ast.AssignArray_new(id, index, e, nil, false, this.Linenum)
+				return ast.AssignArray_new(id, index, e, nil, false, this.Linenum)
 			default:
-                panic("bug")
+				panic("bug")
 			}
 		} else {
 			this.eatToken(TOKEN_ID)
@@ -337,9 +337,9 @@ func (this *Parser) parseStatement() ast.Stm {
 				this.eatToken(TOKEN_ASSIGN)
 				exp := this.parseExp()
 				this.eatToken(TOKEN_SEMI)
-                return ast.AssignArray_new(id, index, exp, nil, false, this.Linenum)
+				return ast.AssignArray_new(id, index, exp, nil, false, this.Linenum)
 			default:
-                panic("bug")
+				panic("bug")
 			}
 		}
 	case TOKEN_IF:
@@ -350,14 +350,14 @@ func (this *Parser) parseStatement() ast.Stm {
 		thenn := this.parseStatement()
 		this.eatToken(TOKEN_ELSE)
 		elsee := this.parseStatement()
-        return ast.If_new(condition, thenn, elsee, this.Linenum)
+		return ast.If_new(condition, thenn, elsee, this.Linenum)
 	case TOKEN_WHILE:
 		this.eatToken(TOKEN_WHILE)
 		this.eatToken(TOKEN_LPAREN)
 		exp := this.parseExp()
 		this.eatToken(TOKEN_RPAREN)
 		body := this.parseStatement()
-        return ast.While_new(exp, body, this.Linenum)
+		return ast.While_new(exp, body, this.Linenum)
 	case TOKEN_SYSTEM:
 		this.eatToken(TOKEN_SYSTEM)
 		this.eatToken(TOKEN_DOT)
@@ -368,9 +368,9 @@ func (this *Parser) parseStatement() ast.Stm {
 		e := this.parseExp()
 		this.eatToken(TOKEN_RPAREN)
 		this.eatToken(TOKEN_SEMI)
-        return ast.Print_new(e, this.Linenum)
+		return ast.Print_new(e, this.Linenum)
 	default:
-        panic("token error")
+		panic("token error")
 	}
 	return nil
 }

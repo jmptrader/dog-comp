@@ -1,11 +1,11 @@
 package util
 
 import (
-    "fmt"
-    "os"
+	"fmt"
+	"os"
 )
 
 func Todo() {
-    fmt.Printf("TODO>\n")
-    os.Exit(0)
+	fmt.Printf("TODO>\n")
+	os.Exit(0)
 }

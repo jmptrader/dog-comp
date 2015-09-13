@@ -160,7 +160,7 @@ func (this *Lexer) nextTokenInternal() *Token {
 			if this.expectKeyword("&") {
 				return newToken(TOKEN_AND, "&&", this.lineNum)
 			} else {
-                panic("expect &&")
+				panic("expect &&")
 			}
 		} else {
 			return this.expectIdOrKey(c)

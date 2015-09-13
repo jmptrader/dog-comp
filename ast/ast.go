@@ -8,8 +8,8 @@ type Class interface {
 
 type Dec interface {
 	accept(v Visitor)
-	GetDecType()int
-    String()string
+	GetDecType() int
+	String() string
 }
 
 type Exp interface {
@@ -39,8 +39,8 @@ type Stm interface {
 
 type Type interface {
 	accept(v Visitor)
-	Gettype()int
-    String()string
+	Gettype() int
+	String() string
 }
 
 /*------------------ struct -----------------------*/
@@ -56,12 +56,12 @@ func (this *DecSingle) accept(v Visitor) {
 	v.visit(this)
 }
 
-func (this *DecSingle) GetDecType()int {
-    return this.Tp.Gettype()
+func (this *DecSingle) GetDecType() int {
+	return this.Tp.Gettype()
 }
-func (this *DecSingle) String()string {
-    s := this.Name+" " + this.Tp.String()
-    return s
+func (this *DecSingle) String() string {
+	s := this.Name + " " + this.Tp.String()
+	return s
 }
 
 /*}}}*/
@@ -79,6 +79,7 @@ func (this *MainClassSingle) accept(v Visitor) {
 
 func (this *MainClassSingle) _mainclass() {
 }
+
 /*}}}*/
 
 /* ClassSingle {{{*/
@@ -130,22 +131,22 @@ func (this *ProgramSingle) _prog() {
 /*Exp*/ /*{{{*/
 
 type Exp_T struct {
-    LineNum int
+	LineNum int
 }
 
 //Exp.Add /*{{{*/
 type Add struct {
 	Left  Exp
 	Right Exp
-    Exp_T
+	Exp_T
 }
 
-func Add_new(l Exp, r Exp, line int)*Add{
-    e := new(Add)
-    e.Left = l
-    e.Right = r
-    e.LineNum = line
-    return e
+func Add_new(l Exp, r Exp, line int) *Add {
+	e := new(Add)
+	e.Left = l
+	e.Right = r
+	e.LineNum = line
+	return e
 }
 
 func (this *Add) accept(v Visitor) {
@@ -158,15 +159,15 @@ func (this *Add) _exp() {
 type And struct {
 	Left  Exp
 	Right Exp
-    Exp_T
+	Exp_T
 }
 
-func And_new(l Exp, r Exp, line int) *And{
-    n := new (And)
-    n.Left = l
-    n.Right = r
-    n.LineNum = line
-    return n
+func And_new(l Exp, r Exp, line int) *And {
+	n := new(And)
+	n.Left = l
+	n.Right = r
+	n.LineNum = line
+	return n
 }
 
 func (this *And) accept(v Visitor) {
@@ -179,15 +180,15 @@ func (this *And) _exp() {
 type Times struct {
 	Left  Exp
 	Right Exp
-    Exp_T
+	Exp_T
 }
 
-func Times_new(l Exp, r Exp, line int)*Times{
-    n := new(Times)
-    n.Left = l
-    n.Right = r
-    n.LineNum = line
-    return n
+func Times_new(l Exp, r Exp, line int) *Times {
+	n := new(Times)
+	n.Left = l
+	n.Right = r
+	n.LineNum = line
+	return n
 }
 
 func (this *Times) accept(v Visitor) {
@@ -201,16 +202,16 @@ func (this *Times) _exp() {
 //Exp.ArraySelect /*{{{*/
 type ArraySelect struct {
 	Arrayref Exp
-	Index     Exp
-    Exp_T
+	Index    Exp
+	Exp_T
 }
 
-func ArraySelect_new(array Exp, index Exp, line int)*ArraySelect{
-    e := new(ArraySelect)
-    e.Arrayref = array
-    e.Index = index
-    e.LineNum = line
-    return e
+func ArraySelect_new(array Exp, index Exp, line int) *ArraySelect {
+	e := new(ArraySelect)
+	e.Arrayref = array
+	e.Index = index
+	e.LineNum = line
+	return e
 }
 
 func (this *ArraySelect) accept(v Visitor) {
@@ -229,21 +230,21 @@ type Call struct {
 	Firsttype  string
 	ArgsType   []Type
 	Rt         Type
-    Exp_T
+	Exp_T
 }
 
 func Call_new(callee Exp, m string, args []Exp,
-                ftp string, argstype []Type,
-                rt Type, line int)*Call{
-    e := new(Call)
-    e.Callee = callee
-    e.MethodName = m
-    e.ArgsList = args
-    e.Firsttype = ftp
-    e.ArgsType = argstype
-    e.Rt = rt
-    e.LineNum = line
-    return e
+	ftp string, argstype []Type,
+	rt Type, line int) *Call {
+	e := new(Call)
+	e.Callee = callee
+	e.MethodName = m
+	e.ArgsList = args
+	e.Firsttype = ftp
+	e.ArgsType = argstype
+	e.Rt = rt
+	e.LineNum = line
+	return e
 }
 
 func (this *Call) accept(v Visitor) {
@@ -256,12 +257,13 @@ func (this *Call) _exp() {
 
 //Exp.False /*{{{*/
 type False struct {
-    Exp_T
+	Exp_T
 }
-func False_new(line int)*False{
-    e := new(False)
-    e.LineNum = line
-    return e
+
+func False_new(line int) *False {
+	e := new(False)
+	e.LineNum = line
+	return e
 }
 
 func (this *False) accept(v Visitor) {
@@ -274,13 +276,13 @@ func (this *False) _exp() {
 
 //Exp.True   /*{{{*/
 type True struct {
-    Exp_T
+	Exp_T
 }
 
-func True_new(line int)*True{
-    e:=new(True)
-    e.LineNum = line
-    return e
+func True_new(line int) *True {
+	e := new(True)
+	e.LineNum = line
+	return e
 }
 
 func (this *True) accept(v Visitor) {
@@ -296,16 +298,16 @@ type Id struct {
 	Name    string
 	Tp      Type
 	IsField bool
-    Exp_T
+	Exp_T
 }
 
-func Id_new(name string, tp Type, isField bool, line int)*Id{
-    e := new(Id)
-    e.Name = name
-    e.Tp = tp
-    e.IsField = isField
-    e.LineNum = line
-    return e
+func Id_new(name string, tp Type, isField bool, line int) *Id {
+	e := new(Id)
+	e.Name = name
+	e.Tp = tp
+	e.IsField = isField
+	e.LineNum = line
+	return e
 }
 
 func (this *Id) accept(v Visitor) {
@@ -320,14 +322,14 @@ func (this *Id) _exp() {
 //len(arrayref)
 type Length struct {
 	Arrayref Exp
-    Exp_T
+	Exp_T
 }
 
-func Length_new(array Exp, line int)*Length {
-    e := new(Length)
-    e.Arrayref = array
-    e.LineNum = line
-    return e
+func Length_new(array Exp, line int) *Length {
+	e := new(Length)
+	e.Arrayref = array
+	e.LineNum = line
+	return e
 }
 
 func (this *Length) accept(v Visitor) {
@@ -343,15 +345,15 @@ func (this *Length) _exp() {
 type Lt struct {
 	Left  Exp
 	Right Exp
-    Exp_T
+	Exp_T
 }
 
-func Lt_new(l Exp, r Exp, line int)*Lt{
-    e := new(Lt)
-    e.Left = l
-    e.Right = r
-    e.LineNum = line
-    return e
+func Lt_new(l Exp, r Exp, line int) *Lt {
+	e := new(Lt)
+	e.Left = l
+	e.Right = r
+	e.LineNum = line
+	return e
 }
 
 func (this *Lt) accept(v Visitor) {
@@ -365,14 +367,14 @@ func (this *Lt) _exp() {
 //Exp.NewIntArray   /*{{{*/
 type NewIntArray struct {
 	Size Exp
-    Exp_T
+	Exp_T
 }
 
-func NewIntArray_new(size Exp, line int)*NewIntArray{
-    e := new(NewIntArray)
-    e.Size = size
-    e.LineNum = line
-    return e
+func NewIntArray_new(size Exp, line int) *NewIntArray {
+	e := new(NewIntArray)
+	e.Size = size
+	e.LineNum = line
+	return e
 }
 
 func (this *NewIntArray) accept(v Visitor) {
@@ -386,14 +388,14 @@ func (this *NewIntArray) _exp() {
 //Exp.NewObject /*{{{*/
 type NewObject struct {
 	Name string
-    Exp_T
+	Exp_T
 }
 
-func NewObject_new(name string, line int)*NewObject{
-    e := new(NewObject)
-    e.Name = name
-    e.LineNum = line
-    return e
+func NewObject_new(name string, line int) *NewObject {
+	e := new(NewObject)
+	e.Name = name
+	e.LineNum = line
+	return e
 }
 
 func (this *NewObject) accept(v Visitor) {
@@ -408,14 +410,14 @@ func (this *NewObject) _exp() {
 // !expp
 type Not struct {
 	E Exp
-    Exp_T
+	Exp_T
 }
 
-func Not_new(exp Exp, line int)*Not{
-    e:=new(Not)
-    e.E = exp
-    e.LineNum = line
-    return e
+func Not_new(exp Exp, line int) *Not {
+	e := new(Not)
+	e.E = exp
+	e.LineNum = line
+	return e
 }
 
 func (this *Not) accept(v Visitor) {
@@ -429,14 +431,14 @@ func (this *Not) _exp() {
 //Exp.Num   /*{{{*/
 type Num struct {
 	Value int
-    Exp_T
+	Exp_T
 }
 
-func Num_new(value int, line int)*Num{
-    e := new(Num)
-    e.Value = value
-    e.LineNum = line
-    return e
+func Num_new(value int, line int) *Num {
+	e := new(Num)
+	e.Value = value
+	e.LineNum = line
+	return e
 }
 
 func (this *Num) accept(v Visitor) {
@@ -451,15 +453,15 @@ func (this *Num) _exp() {
 type Sub struct {
 	Left  Exp
 	Right Exp
-    Exp_T
+	Exp_T
 }
 
-func Sub_new(l Exp, r Exp, line int)*Sub{
-    e:=new(Sub)
-    e.Left = l
-    e.Right = r
-    e.LineNum = line
-    return e
+func Sub_new(l Exp, r Exp, line int) *Sub {
+	e := new(Sub)
+	e.Left = l
+	e.Right = r
+	e.LineNum = line
+	return e
 }
 
 func (this *Sub) accept(v Visitor) {
@@ -471,13 +473,13 @@ func (this *Sub) _exp() {
 /*}}}*/
 
 type This struct {
-    Exp_T
+	Exp_T
 }
 
-func This_new(line int)*This{
-    e:=new(This)
-    e.LineNum = line
-    return e
+func This_new(line int) *This {
+	e := new(This)
+	e.LineNum = line
+	return e
 }
 
 func (this *This) accept(v Visitor) {
@@ -491,7 +493,7 @@ func (this *This) _exp() {
 
 //Stm   /*{{{*/
 type Stm_T struct {
-    LineNum int
+	LineNum int
 }
 
 //Stm.Assign    /*{{{*/
@@ -500,17 +502,17 @@ type Assign struct {
 	E       Exp
 	Tp      Type
 	IsField bool
-    Stm_T
+	Stm_T
 }
 
-func Assign_new(name string, exp Exp, tp Type, isField bool, line int)*Assign {
-    s:=new(Assign)
-    s.Name = name
-    s.E = exp
-    s.Tp = tp
-    s.IsField = isField
-    s.LineNum = line
-    return s
+func Assign_new(name string, exp Exp, tp Type, isField bool, line int) *Assign {
+	s := new(Assign)
+	s.Name = name
+	s.E = exp
+	s.Tp = tp
+	s.IsField = isField
+	s.LineNum = line
+	return s
 }
 
 func (this *Assign) accept(v Visitor) {
@@ -529,20 +531,20 @@ type AssignArray struct {
 	E       Exp
 	Tp      Type
 	IsField bool
-    Stm_T
+	Stm_T
 }
 
 func AssignArray_new(name string,
-                    index Exp, exp Exp, tp Type,
-                    isField bool, line int)*AssignArray{
-    s := new(AssignArray)
-    s.Name = name
-    s.Index = index
-    s.E = exp
-    s.Tp = tp
-    s.IsField = isField
-    s.LineNum = line
-    return s
+	index Exp, exp Exp, tp Type,
+	isField bool, line int) *AssignArray {
+	s := new(AssignArray)
+	s.Name = name
+	s.Index = index
+	s.E = exp
+	s.Tp = tp
+	s.IsField = isField
+	s.LineNum = line
+	return s
 }
 
 func (this *AssignArray) accept(v Visitor) {
@@ -556,14 +558,14 @@ func (this *AssignArray) _stm() {
 //Stm.Block /*{{{*/
 type Block struct {
 	Stms []Stm
-    Stm_T
+	Stm_T
 }
 
-func Block_new(stms []Stm, line int)*Block {
-    s := new(Block)
-    s.Stms = stms
-    s.LineNum = line
-    return s
+func Block_new(stms []Stm, line int) *Block {
+	s := new(Block)
+	s.Stms = stms
+	s.LineNum = line
+	return s
 }
 
 func (this *Block) accept(v Visitor) {
@@ -576,19 +578,19 @@ func (this *Block) _stm() {
 
 //Stm.If    /*{{{*/
 type If struct {
-    Stm_T
+	Stm_T
 	Condition Exp
 	Thenn     Stm
 	Elsee     Stm
 }
 
-func If_new(cond Exp, then Stm, elsee Stm, line int)*If{
-    s := new(If)
-    s.Condition = cond
-    s.Thenn = then
-    s.Elsee = elsee
-    s.LineNum = line
-    return s
+func If_new(cond Exp, then Stm, elsee Stm, line int) *If {
+	s := new(If)
+	s.Condition = cond
+	s.Thenn = then
+	s.Elsee = elsee
+	s.LineNum = line
+	return s
 }
 
 func (this *If) accept(v Visitor) {
@@ -601,15 +603,15 @@ func (this *If) _stm() {
 
 //Stm.Print /*{{{*/
 type Print struct {
-    Stm_T
+	Stm_T
 	E Exp
 }
 
-func Print_new(exp Exp, line int)*Print{
-    s := new(Print)
-    s.E =exp
-    s.LineNum = line
-    return s
+func Print_new(exp Exp, line int) *Print {
+	s := new(Print)
+	s.E = exp
+	s.LineNum = line
+	return s
 }
 
 func (this *Print) accept(v Visitor) {
@@ -622,17 +624,17 @@ func (this *Print) _stm() {
 
 //Stm.While   /*{{{*/
 type While struct {
-    Stm_T
+	Stm_T
 	E    Exp
 	Body Stm
 }
 
-func While_new(exp Exp, body Stm, line int)*While{
-    s := new(While)
-    s.E = exp
-    s.Body = body
-    s.LineNum = line
-    return s
+func While_new(exp Exp, body Stm, line int) *While {
+	s := new(While)
+	s.E = exp
+	s.Body = body
+	s.LineNum = line
+	return s
 }
 
 func (this *While) accept(v Visitor) {
@@ -648,80 +650,80 @@ func (this *While) _stm() {
 //Type   /*{{{*/
 
 //Type.Int  /*{{{*/
-const  (
-    TYPE_INT = iota
-    TYPE_BOOLEAN
-    TYPE_INTARRAY
-    TYPE_CLASS
-
+const (
+	TYPE_INT = iota
+	TYPE_BOOLEAN
+	TYPE_INTARRAY
+	TYPE_CLASS
 )
+
 type Int struct {
-    TypeKind int
+	TypeKind int
 }
 
 func (this *Int) accept(v Visitor) {
 	v.visit(this)
 }
-func (this *Int) Gettype()int {
-    return this.TypeKind
+func (this *Int) Gettype() int {
+	return this.TypeKind
 }
-func (this *Int)String()string {
-    return "@int"
+func (this *Int) String() string {
+	return "@int"
 }
 
 /*}}}*/
 
 //Type.Bool /*{{{*/
 type Boolean struct {
-    TypeKind int
+	TypeKind int
 }
 
 func (this *Boolean) accept(v Visitor) {
 	v.visit(this)
 }
-func (this *Boolean) Gettype()int {
-    return this.TypeKind
+func (this *Boolean) Gettype() int {
+	return this.TypeKind
 }
 
-func (this *Boolean)String()string {
-    return "@boolean"
+func (this *Boolean) String() string {
+	return "@boolean"
 }
 
 /*}}}*/
 
 //Type.IntArray /*{{{*/
 type IntArray struct {
-    TypeKind int
+	TypeKind int
 }
 
 func (this *IntArray) accept(v Visitor) {
 	v.visit(this)
 }
-func (this *IntArray) Gettype()int {
-    return this.TypeKind
+func (this *IntArray) Gettype() int {
+	return this.TypeKind
 }
 
-func (this *IntArray)String()string{
-    return "@int[]"
+func (this *IntArray) String() string {
+	return "@int[]"
 }
 
 /*}}}*/
 
 //Type.ClassType    /*{{{*/
 type ClassType struct {
-	Name string
-    TypeKind int
+	Name     string
+	TypeKind int
 }
 
 func (this *ClassType) accept(v Visitor) {
 	v.visit(this)
 }
-func (this *ClassType) Gettype()int {
-    return this.TypeKind
+func (this *ClassType) Gettype() int {
+	return this.TypeKind
 }
 
-func (this *ClassType)String()string {
-    return "@"+this.Name
+func (this *ClassType) String() string {
+	return "@" + this.Name
 }
 
 /*}}}*/

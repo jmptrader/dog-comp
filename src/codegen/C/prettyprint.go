@@ -233,7 +233,7 @@ func pp_Exp_Lt(e *Lt) {
 }
 
 func pp_Exp_NewIntArray(e *NewIntArray) {
-	say("*(int*)Tiger_new_array(")
+	say("(int*)Tiger_new_array(")
 	pp(e.e)
 	say(")")
 }

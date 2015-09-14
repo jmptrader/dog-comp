@@ -1,9 +1,17 @@
 package codegen_c
 
 /* Type {{{*/
+
+const (
+	TYPE_INT = iota
+	TYPE_INTARRAY
+	TYPE_CLASSTYPE
+)
+
 type Type interface {
 	accept()
 	_type()
+	GetType() int
 }
 
 type ClassType struct {
@@ -12,18 +20,25 @@ type ClassType struct {
 
 func (this *ClassType) _type()  {}
 func (this *ClassType) accept() {}
+func (this *ClassType) GetType() int {
+	return TYPE_CLASSTYPE
+}
 
 type Int struct {
 }
 
 func (this *Int) _type()  {}
 func (this *Int) accept() {}
+func (this *Int) GetType() int {
+	return TYPE_INT
+}
 
 type IntArray struct {
 }
 
-func (this *IntArray) _type()  {}
-func (this *IntArray) accept() {}
+func (this *IntArray) _type()       {}
+func (this *IntArray) accept()      {}
+func (this *IntArray) GetType() int { return TYPE_INTARRAY }
 
 /*}}}*/
 
@@ -205,6 +220,7 @@ func (this *While) accept() {}
 type Dec interface {
 	_dec()
 	accept()
+	GetType() int
 }
 type DecSingle struct {
 	tp Type
@@ -213,6 +229,9 @@ type DecSingle struct {
 
 func (this *DecSingle) _dec()   {}
 func (this *DecSingle) accept() {}
+func (this *DecSingle) GetType() int {
+	return this.tp.GetType()
+}
 
 type MainMethod interface {
 	_maincmethod()
@@ -233,7 +252,7 @@ type Method interface {
 
 type MethodSingle struct {
 	retType Type
-	classId string
+	classId string // class name
 	id      string //method name
 	formals []Dec
 	locals  []Dec

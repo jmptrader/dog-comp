@@ -51,8 +51,9 @@ func (this *Parser) parseType() ast.Type {
 			this.eatToken(TOKEN_LBRACK)
 			this.eatToken(TOKEN_RBRACK)
 			this.currentType = &ast.IntArray{ast.TYPE_INTARRAY}
+		} else {
+			this.currentType = &ast.Int{}
 		}
-		this.currentType = &ast.Int{}
 	case TOKEN_BOOLEAN:
 		this.eatToken(TOKEN_BOOLEAN)
 		this.currentType = &ast.Boolean{ast.TYPE_BOOLEAN}

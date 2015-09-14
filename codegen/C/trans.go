@@ -12,6 +12,8 @@ var dec_c Dec
 var stm_c Stm
 var exp_c Exp
 var method_c Method
+
+//Store additional dec, when start a method, refresh
 var tmpVars_c []Dec
 var classes_c []Class
 var vtables_c []Vtable
@@ -20,6 +22,9 @@ var methods_c []Method
 var main_method_c MainMethod
 var prog_c Program
 
+/**
+ * For generate additional variable id
+ */
 func genId() string {
 	return util.Next()
 }
@@ -48,6 +53,7 @@ func trans_Method(m ast.Method) {
 		}
 		trans(mm.RetExp)
 		retExp := exp_c
+		//Additional dec should add in the end of locals
 		for _, dec := range tmpVars_c {
 			new_locals = append(new_locals, dec)
 		}
@@ -86,6 +92,7 @@ func trans_Exp_ArraySelect(e *ast.ArraySelect) {
 func trans_Exp_Call(e *ast.Call) {
 	trans(e.Callee)
 	new_id := genId()
+	//callee in C is the first arg when call a method
 	tmpVars_c = append(tmpVars_c, &DecSingle{&ClassType{e.Firsttype}, new_id})
 	exp := exp_c
 	args := make([]Exp, 0)
@@ -172,6 +179,7 @@ func trans_Exp(e ast.Exp) {
 	case *ast.ArraySelect:
 		trans_Exp_ArraySelect(v)
 	case *ast.Call:
+		trans_Exp_Call(v)
 	case *ast.False:
 		trans_Exp_False(v)
 	case *ast.Id:
@@ -332,7 +340,8 @@ func trans_MainClass(mc ast.MainClass) {
 			&VtableSingle{cc.Name, cb.methods})
 		tmpVars_c = make([]Dec, 0)
 		trans(cc.Stms)
-		mtd := &MainMethodSingle{tmpVars_c, stm_c}
+		ss := stm_c
+		mtd := &MainMethodSingle{tmpVars_c, ss}
 		main_method_c = mtd
 	} else {
 		panic("impossible")
@@ -446,7 +455,7 @@ func transC_init() {
 	methods_c = make([]Method, 0)
 }
 
-func CodegenC(p ast.Program) Program {
+func TransC(p ast.Program) Program {
 	trans(p)
 	return prog_c
 }

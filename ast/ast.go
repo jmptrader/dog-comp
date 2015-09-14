@@ -101,7 +101,7 @@ func (this *ClassSingle) _class() {
 //Method  /*{{{*/
 type MethodSingle struct {
 	RetType Type
-	Name    string
+	Name    string // the name of whitch class belong to
 	Formals []Dec
 	Locals  []Dec
 	Stms    []Stm

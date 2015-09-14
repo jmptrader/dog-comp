@@ -145,7 +145,13 @@ var all_Arg = []Arg{
 		"<outfile>",
 		"set the name of the output file",
 		STRING,
-		nil},
+		func(c interface{}) {
+			if s, ok := c.(string); ok {
+				Control_CodeGen_outputName = s
+			} else {
+				panic("impossible")
+			}
+		}},
 	{"help",
 		"",
 		"show this help information",

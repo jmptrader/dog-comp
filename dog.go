@@ -23,6 +23,7 @@ func main() {
 		control.Usage()
 		os.Exit(0)
 	}
+	control.Control_CodeGen_fileName = filename
 	buf, err := ioutil.ReadFile(filename)
 	if err != nil {
 		fmt.Println(err)
@@ -47,9 +48,10 @@ func main() {
 	elaborator.Elaborate(Ast)
 
 	//set3: codegen
+	var Ast_c codegen_c.Program
 	switch control.Control_CodeGen_codegen {
 	case control.C:
-		codegen_c.CodegenC(Ast)
+		Ast_c = codegen_c.TransC(Ast)
 	case control.Bytecode:
 		util.Todo()
 	case control.Dalvik:
@@ -59,4 +61,6 @@ func main() {
 	default:
 		panic("impossible")
 	}
+
+	codegen_c.CodegenC(Ast_c)
 }

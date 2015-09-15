@@ -1,5 +1,9 @@
 package codegen_c
 
+import (
+	"fmt"
+)
+
 type ClassBinding struct {
 	extends string
 	visited bool
@@ -31,4 +35,25 @@ func (this *ClassBinding) updateMethods(m []*Ftuple) {
 
 func (this *ClassBinding) putMethod(c string, ret Type, args []Dec, mtd_name string) {
 	this.methods = append(this.methods, &Ftuple{c, ret, args, mtd_name})
+}
+
+func (this *ClassBinding) dump() {
+	if this.extends != "" {
+		fmt.Println(" extends " + this.extends)
+	} else {
+		fmt.Println("")
+	}
+	fmt.Println("   ---Field---")
+	for _, t := range this.fields {
+		fmt.Printf("    ")
+		t.dump()
+		fmt.Println("")
+	}
+	fmt.Println("")
+	fmt.Println("   ---Method---")
+	for _, ft := range this.methods {
+		fmt.Printf("    ")
+		ft.dump()
+		fmt.Println("")
+	}
 }

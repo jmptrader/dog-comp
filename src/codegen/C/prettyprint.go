@@ -719,10 +719,10 @@ func pp_init() {
 	indentLevel = 2
 	redec = util.HashSet_new()
 	classLocal = make(map[string][]*Tuple)
-	if control.Control_CodeGen_outputName != "" {
-		outputName = control.Control_CodeGen_outputName
-	} else if control.Control_CodeGen_fileName != "" {
-		outputName = control.Control_CodeGen_fileName + ".c"
+	if control.CodeGen_outputName != "" {
+		outputName = control.CodeGen_outputName
+	} else if control.CodeGen_fileName != "" {
+		outputName = control.CodeGen_fileName + ".c"
 	} else {
 		outputName = "a.c"
 	}

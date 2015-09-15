@@ -1,5 +1,6 @@
 #include <string.h>
 #include "string.h"
+#include <stdarg.h>
 #include "assert.h"
 #include "mem.h"
 
@@ -86,7 +87,7 @@ T String_concat(T s, ...)
     while (current)
     {
         totalSize += strlen(current);
-        current = va_arg(ap, char*);
+        current = va_arg(ap, char *);
     }
     va_end(ap);
 
@@ -99,7 +100,7 @@ T String_concat(T s, ...)
     {
         strcpy(temp, current);
         temp += strlen(current);
-        current = va_arg(ap, char*);
+        current = va_arg(ap, char *);
     }
 
     return head;

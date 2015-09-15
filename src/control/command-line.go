@@ -80,13 +80,13 @@ var all_Arg = []Arg{
 			switch c.(type) {
 			case string:
 				if c == "bytecode" {
-					Control_CodeGen_codegen = Bytecode
+					CodeGen_codegen = Bytecode
 				} else if c == "C" {
-					Control_CodeGen_codegen = C
+					CodeGen_codegen = C
 				} else if c == "dalvik" {
-					Control_CodeGen_codegen = Dalvik
+					CodeGen_codegen = Dalvik
 				} else if c == "x86" {
-					Control_CodeGen_codegen = X86
+					CodeGen_codegen = X86
 				} else {
 					argException("-codegen {bytecode|C|dalvik|x86}")
 				}
@@ -95,14 +95,16 @@ var all_Arg = []Arg{
 			}
 		}},
 	{"dump",
-		"{ast}",
+		"{ast|c}",
 		"dump information about the given ir",
 		STRING,
 		func(c interface{}) {
 			switch c.(type) {
 			case string:
 				if c == "ast" {
-					Control_Ast_dumpAst = true
+					Ast_dumpAst = true
+				} else if c == "c" {
+					CodeGen_dump = true
 				} else {
 					argException("-dump {ast}")
 				}
@@ -117,9 +119,9 @@ var all_Arg = []Arg{
 		func(c interface{}) {
 			if s, ok := c.(string); ok {
 				if s == "classtable" {
-					Control_Elab_classTable = true
+					Elab_classTable = true
 				} else if s == "methodtable" {
-					Control_Elab_methodTable = true
+					Elab_methodTable = true
 				} else {
 					argException("-elab {classtable|methodtable}")
 				}
@@ -132,14 +134,14 @@ var all_Arg = []Arg{
 		"dump the result of lexical analysis",
 		EMPTY,
 		func(c interface{}) {
-			Control_Lexer_dump = true
+			Lexer_dump = true
 		}},
 	{"testlexer",
 		"",
 		"whether or not to test the lexer",
 		EMPTY,
 		func(c interface{}) {
-			Control_Lexer_test = true
+			Lexer_test = true
 		}},
 	{"output",
 		"<outfile>",
@@ -147,7 +149,7 @@ var all_Arg = []Arg{
 		STRING,
 		func(c interface{}) {
 			if s, ok := c.(string); ok {
-				Control_CodeGen_outputName = s
+				CodeGen_outputName = s
 			} else {
 				panic("impossible")
 			}

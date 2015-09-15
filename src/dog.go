@@ -23,13 +23,13 @@ func main() {
 		control.Usage()
 		os.Exit(0)
 	}
-	control.Control_CodeGen_fileName = filename
+	control.CodeGen_fileName = filename
 	buf, err := ioutil.ReadFile(filename)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(0)
 	}
-	if control.Control_Lexer_test == true {
+	if control.Lexer_test == true {
 		lex := parser.NewLexer(filename, buf)
 		tk := lex.NextToken()
 		for tk.Kind != parser.TOKEN_EOF {
@@ -41,7 +41,7 @@ func main() {
 	}
 	//setp1: lexer&&parser
 	Ast := dog_Parser(filename, buf)
-	if control.Control_Ast_dumpAst == true {
+	if control.Ast_dumpAst == true {
 		ast.NewPP().DumpProg(Ast)
 	}
 	//step2: elaborate
@@ -49,7 +49,7 @@ func main() {
 
 	//set3: codegen
 	var Ast_c codegen_c.Program
-	switch control.Control_CodeGen_codegen {
+	switch control.CodeGen_codegen {
 	case control.C:
 		Ast_c = codegen_c.TransC(Ast)
 	case control.Bytecode:

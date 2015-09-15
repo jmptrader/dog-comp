@@ -28,7 +28,7 @@ func NewParse(fname string, buf []byte) *Parser {
 }
 
 func (this *Parser) advance() {
-	if control.Control_Lexer_dump == true {
+	if control.Lexer_dump == true {
 		fmt.Println(this.current.ToString())
 	}
 	this.Linenum = this.current.LineNum

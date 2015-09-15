@@ -1,5 +1,9 @@
 package codegen_c
 
+import (
+	"fmt"
+)
+
 type Tuple struct {
 	classname  string
 	tp         Type
@@ -18,4 +22,8 @@ func Tuple_equals(t1 *Tuple, t2 *Tuple) bool {
 		return true
 	}
 	return false
+}
+
+func (this *Tuple) dump() {
+	fmt.Printf("%s  %s  :%s", this.field_name, this.tp, this.classname)
 }

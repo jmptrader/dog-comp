@@ -2,6 +2,7 @@ package codegen_c
 
 import (
 	"../../ast"
+	"../../control"
 	"../../util"
 )
 
@@ -457,5 +458,8 @@ func transC_init() {
 
 func TransC(p ast.Program) Program {
 	trans(p)
+	if control.CodeGen_dump == true {
+		table.dump()
+	}
 	return prog_c
 }

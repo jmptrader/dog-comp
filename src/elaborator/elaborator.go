@@ -36,7 +36,7 @@ func elabMethod(mth ast.Method) {
 	if m, ok := mth.(*ast.MethodSingle); ok {
 		initMethodTable()
 		mt_put(m.Formals, m.Locals)
-		if control.Control_Elab_methodTable == true {
+		if control.Elab_methodTable == true {
 			methodTable_dump(m.Name)
 		}
 		for _, stm := range m.Stms {
@@ -391,7 +391,7 @@ func elabProg(p ast.Program) {
 		for _, c := range v.Classes {
 			elaborate(c)
 		}
-		if control.Control_Elab_classTable == true {
+		if control.Elab_classTable == true {
 			classTable_dump()
 		}
 	default:

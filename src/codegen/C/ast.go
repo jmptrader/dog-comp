@@ -12,6 +12,7 @@ type Type interface {
 	accept()
 	_type()
 	GetType() int
+	String() string
 }
 
 type ClassType struct {
@@ -23,6 +24,9 @@ func (this *ClassType) accept() {}
 func (this *ClassType) GetType() int {
 	return TYPE_CLASSTYPE
 }
+func (this *ClassType) String() string {
+	return "@" + this.id
+}
 
 type Int struct {
 }
@@ -32,13 +36,17 @@ func (this *Int) accept() {}
 func (this *Int) GetType() int {
 	return TYPE_INT
 }
+func (this *Int) String() string {
+	return "@int"
+}
 
 type IntArray struct {
 }
 
-func (this *IntArray) _type()       {}
-func (this *IntArray) accept()      {}
-func (this *IntArray) GetType() int { return TYPE_INTARRAY }
+func (this *IntArray) _type()         {}
+func (this *IntArray) accept()        {}
+func (this *IntArray) GetType() int   { return TYPE_INTARRAY }
+func (this *IntArray) String() string { return "@int[]" }
 
 /*}}}*/
 
@@ -221,6 +229,7 @@ type Dec interface {
 	_dec()
 	accept()
 	GetType() int
+	String() string
 }
 type DecSingle struct {
 	tp Type
@@ -231,6 +240,9 @@ func (this *DecSingle) _dec()   {}
 func (this *DecSingle) accept() {}
 func (this *DecSingle) GetType() int {
 	return this.tp.GetType()
+}
+func (this *DecSingle) String() string {
+	return this.tp.String() + " " + this.id
 }
 
 type MainMethod interface {

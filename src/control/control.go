@@ -1,10 +1,10 @@
 package control
 
-var Control_Lexer_test bool = false
-var Control_Lexer_dump bool = false
+var Lexer_test bool = false
+var Lexer_dump bool = false
 
-var Control_CodeGen_fileName string = ""
-var Control_CodeGen_outputName string = ""
+var CodeGen_fileName string = ""
+var CodeGen_outputName string = ""
 
 type CodeGen_Kind int
 
@@ -15,10 +15,11 @@ const (
 	X86
 )
 
-var Control_CodeGen_codegen CodeGen_Kind = C
+var CodeGen_codegen CodeGen_Kind = C
+var CodeGen_dump bool = false
 
-var Control_Ast_test bool = false
-var Control_Ast_dumpAst bool = false
+var Ast_test bool = false
+var Ast_dumpAst bool = false
 
-var Control_Elab_classTable bool = false
-var Control_Elab_methodTable bool = false
+var Elab_classTable bool = false
+var Elab_methodTable bool = false

@@ -2,6 +2,7 @@ package codegen_c
 
 import (
 	"../../util"
+	"fmt"
 )
 
 type ClassTable struct {
@@ -67,6 +68,7 @@ func (this *ClassTable) inherit(name string) {
 	}
 	cb.updateFields(new_fields)
 
+	//method override
 	var new_methods []*Ftuple
 	for _, m := range super.methods {
 		new_methods = append(new_methods, m)
@@ -74,7 +76,7 @@ func (this *ClassTable) inherit(name string) {
 	for _, m := range cb.methods {
 		for index, t := range new_methods {
 			if Ftuple_equals(m, t) == true {
-				new_methods[index] = t
+				new_methods[index] = m
 			}
 		}
 	}
@@ -85,4 +87,12 @@ func (this *ClassTable) inherit(name string) {
 func (this *ClassTable) String() string {
 	util.Todo()
 	return ""
+}
+
+func (this *ClassTable) dump() {
+	for name, c := range this.table {
+		fmt.Printf(name)
+		c.dump()
+		fmt.Println("")
+	}
 }

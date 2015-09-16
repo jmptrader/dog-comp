@@ -13,5 +13,8 @@ func Opt(prog ast.Program) ast.Program {
 	if !control.Trace_skipPass("deadcode") {
 		Ast = DeadCode_new().DeadCode_Opt(Ast)
 	}
+    if !control.Trace_skipPass("algsimp"){
+        Ast = AlgSimp(Ast)
+    }
 	return Ast
 }

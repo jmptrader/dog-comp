@@ -170,6 +170,15 @@ func args_init() {
 					Trace_add(s)
 				}
 			}},
+        {"skip",
+            "<passname>",
+            "skip opt pass",
+            STRING,
+            func(c interface{}){
+                if s, ok := c.(string); ok {
+                    Trace_Skip_add(s)
+                }
+            }},
 		{"verbose",
 			"{0|1|2|3}",
 			"verbose pass",

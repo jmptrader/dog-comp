@@ -7,6 +7,7 @@ import (
 	"./elaborator"
 	"./parser"
 	"./util"
+    "./ast/optimization"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -46,6 +47,8 @@ func main() {
 	}
 	//step2: elaborate
 	elaborator.Elaborate(Ast)
+
+    Ast = ast_opt.DeadClass_Opt(Ast)
 
 	//set3: codegen
 	var Ast_c codegen_c.Program

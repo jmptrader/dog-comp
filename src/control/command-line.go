@@ -29,6 +29,11 @@ const (
 	WEBSITE = "https://github.com/qc1iu/dog-comp"
 )
 
+/**
+ * All args. Initialized int Do_arg() by args_init()
+ */
+var all_Arg []Arg
+
 func printSpeaces(i int) int {
 	r := i
 	for ; i > 0; i-- {
@@ -71,97 +76,112 @@ func argException(s ...interface{}) {
 	os.Exit(1)
 }
 
-var all_Arg = []Arg{
-	{"codegen",
-		"{bytecode|C|dalvik|x86}",
-		"which code generator to use",
-		STRING,
-		func(c interface{}) {
-			switch c.(type) {
-			case string:
-				if c == "bytecode" {
-					CodeGen_codegen = Bytecode
-				} else if c == "C" {
-					CodeGen_codegen = C
-				} else if c == "dalvik" {
-					CodeGen_codegen = Dalvik
-				} else if c == "x86" {
-					CodeGen_codegen = X86
-				} else {
-					argException("-codegen {bytecode|C|dalvik|x86}")
+func args_init() {
+	all_Arg = []Arg{
+		{"codegen",
+			"{bytecode|C|dalvik|x86}",
+			"which code generator to use",
+			STRING,
+			func(c interface{}) {
+				switch c.(type) {
+				case string:
+					if c == "bytecode" {
+						CodeGen_codegen = Bytecode
+					} else if c == "C" {
+						CodeGen_codegen = C
+					} else if c == "dalvik" {
+						CodeGen_codegen = Dalvik
+					} else if c == "x86" {
+						CodeGen_codegen = X86
+					} else {
+						argException("-codegen {bytecode|C|dalvik|x86}")
+					}
+				default:
+					argException("bad argument")
 				}
-			default:
-				argException("bad argument")
-			}
-		}},
-	{"dump",
-		"{ast|c}",
-		"dump information about the given ir",
-		STRING,
-		func(c interface{}) {
-			switch c.(type) {
-			case string:
-				if c == "ast" {
-					Ast_dumpAst = true
-				} else if c == "c" {
-					CodeGen_dump = true
-				} else {
-					argException("-dump {ast}")
+			}},
+		{"dump",
+			"{ast|c}",
+			"dump information about the given ir",
+			STRING,
+			func(c interface{}) {
+				switch c.(type) {
+				case string:
+					if c == "ast" {
+						Ast_dumpAst = true
+					} else if c == "c" {
+						CodeGen_dump = true
+					} else {
+						argException("-dump {ast}")
+					}
+				default:
+					argException("bad argument")
 				}
-			default:
-				argException("bad argument")
-			}
-		}},
-	{"elab",
-		"{classtable|methodtable}",
-		"dump information about elaboration",
-		STRING,
-		func(c interface{}) {
-			if s, ok := c.(string); ok {
-				if s == "classtable" {
-					Elab_classTable = true
-				} else if s == "methodtable" {
-					Elab_methodTable = true
+			}},
+		{"elab",
+			"{classtable|methodtable}",
+			"dump information about elaboration",
+			STRING,
+			func(c interface{}) {
+				if s, ok := c.(string); ok {
+					if s == "classtable" {
+						Elab_classTable = true
+					} else if s == "methodtable" {
+						Elab_methodTable = true
+					} else {
+						argException("-elab {classtable|methodtable}")
+					}
 				} else {
-					argException("-elab {classtable|methodtable}")
+					argException("bad argument")
 				}
-			} else {
-				argException("bad argument")
-			}
-		}},
-	{"lex",
-		"",
-		"dump the result of lexical analysis",
-		EMPTY,
-		func(c interface{}) {
-			Lexer_dump = true
-		}},
-	{"testlexer",
-		"",
-		"whether or not to test the lexer",
-		EMPTY,
-		func(c interface{}) {
-			Lexer_test = true
-		}},
-	{"output",
-		"<outfile>",
-		"set the name of the output file",
-		STRING,
-		func(c interface{}) {
-			if s, ok := c.(string); ok {
-				CodeGen_outputName = s
-			} else {
-				panic("impossible")
-			}
-		}},
-	{"help",
-		"",
-		"show this help information",
-		EMPTY,
-		nil},
+			}},
+		{"lex",
+			"",
+			"dump the result of lexical analysis",
+			EMPTY,
+			func(c interface{}) {
+				Lexer_dump = true
+			}},
+		{"testlexer",
+			"",
+			"whether or not to test the lexer",
+			EMPTY,
+			func(c interface{}) {
+				Lexer_test = true
+			}},
+		{"o",
+			"<outfile>",
+			"set the name of the output file",
+			STRING,
+			func(c interface{}) {
+				if s, ok := c.(string); ok {
+					CodeGen_outputName = s
+				} else {
+					panic("impossible")
+				}
+			}},
+		{"trace",
+			"<passname>",
+			"trace compile pass",
+			STRING,
+			func(c interface{}) {
+				if s, ok := c.(string); ok {
+					util.Trace_add(s)
+				}
+			}},
+		{"help",
+			"",
+			"show this help information",
+			EMPTY,
+			func(c interface{}) {
+				Usage()
+				os.Exit(0)
+			}},
+	}
 }
 
 func Do_arg(args []string) string {
+	args_init()
 	filename := ""
 	found := false
 	for i := 0; i < len(args); i++ {

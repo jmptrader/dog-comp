@@ -6,6 +6,8 @@ var Lexer_dump bool = false
 var CodeGen_fileName string = ""
 var CodeGen_outputName string = ""
 
+var CodeGen_dump bool = false
+
 type CodeGen_Kind int
 
 const (
@@ -16,10 +18,20 @@ const (
 )
 
 var CodeGen_codegen CodeGen_Kind = C
-var CodeGen_dump bool = false
 
 var Ast_test bool = false
 var Ast_dumpAst bool = false
 
 var Elab_classTable bool = false
 var Elab_methodTable bool = false
+
+type Verbose_Kind int
+
+const (
+	VERBOSE_SILENCE = iota
+	VERBOSE_PASS
+	VERBOSE_SUBPASS
+	VERBOSE_DETAIL
+)
+
+var Verbose Verbose_Kind = VERBOSE_SILENCE

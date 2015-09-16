@@ -25,22 +25,13 @@ var Ast_dumpAst bool = false
 var Elab_classTable bool = false
 var Elab_methodTable bool = false
 
-var skipedpass map[string]bool = make(map[string]bool)
-var tracedpass map[string]bool = make(map[string]bool)
-
-func Trace_add(name string){
-    tracedpass[name] = true
-}
-
-func Skip_add(name string){
-    skipedpass[name] = true
-}
-
 type Verbose_Kind int
+
 const (
 	VERBOSE_SILENCE = iota
 	VERBOSE_PASS
 	VERBOSE_SUBPASS
 	VERBOSE_DETAIL
 )
+
 var Verbose Verbose_Kind = VERBOSE_SILENCE

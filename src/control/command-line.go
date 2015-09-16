@@ -160,15 +160,15 @@ func args_init() {
 					panic("impossible")
 				}
 			}},
-        {"trace",
-            "<passname>",
-            "trace compile pass",
-            STRING,
-            func(c interface{}){
-                if s, ok := c.(string); ok {
-                    Trace_add(s)
-                }
-            }},
+		{"trace",
+			"<passname>",
+			"trace compile pass",
+			STRING,
+			func(c interface{}) {
+				if s, ok := c.(string); ok {
+					util.Trace_add(s)
+				}
+			}},
 		{"help",
 			"",
 			"show this help information",

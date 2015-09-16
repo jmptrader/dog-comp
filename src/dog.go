@@ -40,30 +40,41 @@ func main() {
 		fmt.Println(tk.ToString())
 		os.Exit(0)
 	}
+	var Ast ast.Program
 	//setp1: lexer&&parser
-	Ast := dog_Parser(filename, buf)
+	control.Verbose("parser", func() {
+		Ast = dog_Parser(filename, buf)
+	}, control.VERBOSE_PASS)
 	if control.Ast_dumpAst == true {
 		ast.NewPP().DumpProg(Ast)
 	}
 	//step2: elaborate
-	elaborator.Elaborate(Ast)
+	control.Verbose("Elaborate", func() {
+		elaborator.Elaborate(Ast)
+	}, control.VERBOSE_PASS)
 
-	Ast = ast_opt.DeadClass_Opt(Ast)
+	control.Verbose("ast-Opt", func() {
+		Ast = ast_opt.Opt(Ast)
+	}, control.VERBOSE_PASS)
 
-	//set3: codegen
+	//set3: trans
 	var Ast_c codegen_c.Program
-	switch control.CodeGen_codegen {
-	case control.C:
-		Ast_c = codegen_c.TransC(Ast)
-	case control.Bytecode:
-		util.Todo()
-	case control.Dalvik:
-		util.Todo()
-	case control.X86:
-		util.Todo()
-	default:
-		panic("impossible")
-	}
-
-	codegen_c.CodegenC(Ast_c)
+	control.Verbose("Transaction", func() {
+		switch control.CodeGen_codegen {
+		case control.C:
+			Ast_c = codegen_c.TransC(Ast)
+		case control.Bytecode:
+			util.Todo()
+		case control.Dalvik:
+			util.Todo()
+		case control.X86:
+			util.Todo()
+		default:
+			panic("impossible")
+		}
+	}, control.VERBOSE_PASS)
+	//step4: codegen
+	control.Verbose("CodeGen", func() {
+		codegen_c.CodegenC(Ast_c)
+	}, control.VERBOSE_PASS)
 }

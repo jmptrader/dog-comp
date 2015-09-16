@@ -4,6 +4,7 @@ import (
 	"../util"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -166,7 +167,18 @@ func args_init() {
 			STRING,
 			func(c interface{}) {
 				if s, ok := c.(string); ok {
-					util.Trace_add(s)
+					Trace_add(s)
+				}
+			}},
+		{"verbose",
+			"{0|1|2|3}",
+			"verbose pass",
+			INT,
+			func(c interface{}) {
+				if i, ok := c.(int); ok {
+					Verbose_Kind = i
+				} else {
+					panic("impossible")
 				}
 			}},
 		{"help",
@@ -205,10 +217,12 @@ func Do_arg(args []string) string {
 			case BOOL:
 				util.Todo()
 			case INT:
-				util.Todo()
+				i++
 				if i >= len(args) {
 					argException("need <INT>")
 				}
+				theArg, _ := strconv.Atoi(args[i])
+				arg.action(theArg)
 			case STRING:
 				i++
 				if i >= len(args) {

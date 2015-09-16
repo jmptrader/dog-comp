@@ -1,4 +1,4 @@
-package util
+package control
 
 import (
 	"fmt"
@@ -14,6 +14,10 @@ var skipedpass map[string]bool = make(map[string]bool)
 
 func Trace_Skip_add(name string) {
 	skipedpass[name] = true
+}
+
+func Trace_skipPass(name string) bool {
+	return skipedpass[name]
 }
 
 func Trace_indent() {

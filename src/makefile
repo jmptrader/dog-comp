@@ -1,4 +1,4 @@
 all:
 	go build -gcflags "-N -l" -o dog
 clean:
-	rm dog
+	go clean

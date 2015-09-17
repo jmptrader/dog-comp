@@ -2,8 +2,6 @@ package ast_opt
 
 import (
 	"../../ast"
-	"../../control"
-	"fmt"
 )
 
 type DeadCode struct {
@@ -43,9 +41,9 @@ func (this *DeadCode) opt_Exp(exp ast.Exp) {
 			this.is_true = false
 		}
 	case *ast.ArraySelect:
-		this.is_bool = true
+		this.is_bool = false
 	case *ast.Call:
-		this.is_bool = true
+		this.is_bool = false
 	case *ast.False:
 		this.is_bool = true
 		this.is_true = false
@@ -54,6 +52,11 @@ func (this *DeadCode) opt_Exp(exp ast.Exp) {
 	case *ast.Length:
 		this.is_bool = false
 	case *ast.Lt:
+		/*
+		 * Although we can do some magic in here to opt
+		 * Exp like 1<2 -> true, but the real work is in
+		 * const-fold.go
+		 */
 		this.is_bool = false
 	case *ast.NewIntArray:
 		this.is_bool = false
@@ -192,12 +195,6 @@ func (this *DeadCode) DeadCode_Opt(prog ast.Program) ast.Program {
 		}
 		Ast = &ast.ProgramSingle{this.main_class, this.classes}
 
-		if control.Trace_contains("deadcode") == true {
-			fmt.Println("before DeadCode_Opt:")
-			ast.NewPP().DumpProg(prog)
-			fmt.Println("\nafter DeadCode_Opt:")
-			ast.NewPP().DumpProg(Ast)
-		}
 	default:
 		panic("impossible")
 	}

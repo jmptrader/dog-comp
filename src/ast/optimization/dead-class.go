@@ -2,10 +2,8 @@ package ast_opt
 
 import (
 	"../../ast"
-	"../../control"
 	"../../util"
 	"container/list"
-	"fmt"
 )
 
 type DeadClass struct {
@@ -204,14 +202,6 @@ func (this *DeadClass) DeadClass_Opt(prog ast.Program) ast.Program {
 	}
 
 	Ast := &ast.ProgramSingle{p.Mainclass, newclasses}
-
-	//trace
-	if control.Trace_contains("deadclass") == true {
-		fmt.Println("before deadclass opt:")
-		ast.NewPP().DumpProg(prog)
-		fmt.Println("\nafter deadclass opt:")
-		ast.NewPP().DumpProg(Ast)
-	}
 
 	return Ast
 }

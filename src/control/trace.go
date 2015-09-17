@@ -1,4 +1,4 @@
-package util
+package control
 
 import (
 	"fmt"
@@ -14,6 +14,10 @@ var skipedpass map[string]bool = make(map[string]bool)
 
 func Trace_Skip_add(name string) {
 	skipedpass[name] = true
+}
+
+func Trace_skipPass(name string) bool {
+	return skipedpass[name]
 }
 
 func Trace_indent() {
@@ -40,18 +44,14 @@ func Trace_add(name string) {
 	traceSet[name] = true
 }
 
-//FIXME
-func Trace(name string,
-	f func(x interface{}) interface{},
-	x interface{},
-	dox func(c interface{}),
-	r interface{},
-	dor func(c interface{})) {
-	if Trace_contains(name) == true {
-		dox(x)
+
+func Trace(name string, f func(), dox func(), dor func()) {
+	if Trace_contains(name) {
+		dox()
 	}
-	r = f(x)
-	if Trace_contains(name) == true {
-		dor(r)
+	f()
+	if Trace_contains(name) {
+		dor()
 	}
+
 }

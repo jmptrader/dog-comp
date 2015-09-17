@@ -24,14 +24,3 @@ var Ast_dumpAst bool = false
 
 var Elab_classTable bool = false
 var Elab_methodTable bool = false
-
-type Verbose_Kind int
-
-const (
-	VERBOSE_SILENCE = iota
-	VERBOSE_PASS
-	VERBOSE_SUBPASS
-	VERBOSE_DETAIL
-)
-
-var Verbose Verbose_Kind = VERBOSE_SILENCE

@@ -4,107 +4,115 @@ import (
 	"../../ast"
 	"../../util"
 	"container/list"
-	"fmt"
 )
 
-var worklist *list.List = list.New()
-var classes *util.HashSet = util.HashSet_new()
+type DeadClass struct {
+	worklist *list.List
+	classes  *util.HashSet
+}
 
-func opt_Exp(e ast.Exp) {
+func DeadClass_new() *DeadClass {
+	o := new(DeadClass)
+	o.worklist = list.New()
+	o.classes = util.HashSet_new()
+	return o
+}
+
+func (this *DeadClass) opt_Exp(e ast.Exp) {
 	switch v := e.(type) {
 	case *ast.Add:
-		opt(v.Left)
-		opt(v.Right)
+		this.opt(v.Left)
+		this.opt(v.Right)
 	case *ast.And:
-		opt(v.Left)
-		opt(v.Right)
+		this.opt(v.Left)
+		this.opt(v.Right)
 	case *ast.ArraySelect:
-		opt(v.Arrayref)
-		opt(v.Index)
+		this.opt(v.Arrayref)
+		this.opt(v.Index)
 	case *ast.Call:
-		opt(v.Callee)
+		this.opt(v.Callee)
 		for _, arg := range v.ArgsList {
-			opt(arg)
+			this.opt(arg)
 		}
 		//ret Type??
 	case *ast.False:
 	case *ast.Id:
 	case *ast.Length:
-		opt(v.Arrayref)
+		this.opt(v.Arrayref)
 	case *ast.Lt:
-		opt(v.Left)
-		opt(v.Right)
+		this.opt(v.Left)
+		this.opt(v.Right)
 	case *ast.NewIntArray:
-		opt(v.Size)
+		this.opt(v.Size)
 	case *ast.NewObject:
-		if !classes.Contains(v.Name) {
-			worklist.PushBack(v.Name)
-			classes.Add(v.Name)
+		if !this.classes.Contains(v.Name) {
+			this.worklist.PushBack(v.Name)
+			this.classes.Add(v.Name)
 		}
 	case *ast.Not:
-		opt(v.E)
+		this.opt(v.E)
 	case *ast.Num:
 	case *ast.Sub:
-		opt(v.Left)
-		opt(v.Right)
+		this.opt(v.Left)
+		this.opt(v.Right)
 	case *ast.This:
 	case *ast.Times:
-		opt(v.Left)
-		opt(v.Right)
+		this.opt(v.Left)
+		this.opt(v.Right)
 	case *ast.True:
 	default:
 		panic("impossible")
 	}
 }
 
-func opt_Stm(stm ast.Stm) {
+func (this *DeadClass) opt_Stm(stm ast.Stm) {
 	switch s := stm.(type) {
 	case *ast.Assign:
-		opt(s.E)
+		this.opt(s.E)
 	case *ast.AssignArray:
-		opt(s.Index)
-		opt(s.E)
+		this.opt(s.Index)
+		this.opt(s.E)
 	case *ast.Block:
 		for _, ss := range s.Stms {
-			opt(ss)
+			this.opt(ss)
 		}
 	case *ast.If:
-		opt(s.Condition)
-		opt(s.Thenn)
-		opt(s.Elsee)
+		this.opt(s.Condition)
+		this.opt(s.Thenn)
+		this.opt(s.Elsee)
 	case *ast.Print:
-		opt(s.E)
+		this.opt(s.E)
 	case *ast.While:
-		opt(s.E)
-		opt(s.Body)
+		this.opt(s.E)
+		this.opt(s.Body)
 	default:
 		panic("impossible")
 
 	}
 }
 
-func opt_Method(method ast.Method) {
+func (this *DeadClass) opt_Method(method ast.Method) {
 	switch m := method.(type) {
 	case *ast.MethodSingle:
 		//omit the formals and locals
 		//Statements
 		for _, s := range m.Stms {
-			opt(s)
+			this.opt(s)
 		}
 		//return exp
-		opt(m.RetExp)
+		this.opt(m.RetExp)
 	default:
 		panic("impossible")
 	}
 }
 
-func opt_Class(class ast.Class) {
+func (this *DeadClass) opt_Class(class ast.Class) {
 	switch c := class.(type) {
 	case *ast.ClassSingle:
 		//Add super class into worklist and set
 		if c.Extends != "" {
 			exist := false
-			for e := worklist.Front(); e != nil; e = e.Next() {
+			for e := this.worklist.Front(); e != nil; e = e.Next() {
 				classid := e.Value
 				if classid == c.Extends {
 					exist = true
@@ -112,51 +120,51 @@ func opt_Class(class ast.Class) {
 				}
 			}
 			if exist == false {
-				worklist.PushBack(c.Extends)
-				classes.Add(c.Extends)
+				this.worklist.PushBack(c.Extends)
+				this.classes.Add(c.Extends)
 			}
 		}
 		//methods
 		for _, m := range c.Methods {
-			opt(m)
+			this.opt(m)
 		}
 	default:
 		panic("impossible")
 	}
 }
 
-func opt_MainClass(c ast.MainClass) {
+func (this *DeadClass) opt_MainClass(c ast.MainClass) {
 	switch cc := c.(type) {
 	case *ast.MainClassSingle:
-		classes.Add(cc.Name)
-		opt(cc.Stms)
+		this.classes.Add(cc.Name)
+		this.opt(cc.Stms)
 	default:
 		panic("impossible")
 	}
 }
 
-func opt(e ast.Acceptable) {
+func (this *DeadClass) opt(e ast.Acceptable) {
 	switch v := e.(type) {
 	case ast.Exp:
-		opt_Exp(v)
+		this.opt_Exp(v)
 	case ast.Stm:
-		opt_Stm(v)
+		this.opt_Stm(v)
 	case ast.Type:
 		//no need
 	case ast.Dec:
 		//no need
 	case ast.Method:
-		opt_Method(v)
+		this.opt_Method(v)
 	case ast.MainClass:
-		opt_MainClass(v)
+		this.opt_MainClass(v)
 	case ast.Class:
-		opt_Class(v)
+		this.opt_Class(v)
 	default:
 		panic("impossible")
 	}
 }
 
-func DeadClass_Opt(prog ast.Program) ast.Program {
+func (this *DeadClass) DeadClass_Opt(prog ast.Program) ast.Program {
 	var p *ast.ProgramSingle
 	if v, ok := prog.(*ast.ProgramSingle); ok {
 		p = v
@@ -164,16 +172,16 @@ func DeadClass_Opt(prog ast.Program) ast.Program {
 		panic("impossible")
 	}
 	//add mainclass to the classes set
-	opt(p.Mainclass)
+	this.opt(p.Mainclass)
 
-	for worklist.Len() != 0 {
-		e := worklist.Front()
-		worklist.Remove(e)
+	for this.worklist.Len() != 0 {
+		e := this.worklist.Front()
+		this.worklist.Remove(e)
 		classid := e.Value
 		for _, c := range p.Classes {
 			if cc, ok := c.(*ast.ClassSingle); ok {
 				if cc.Name == classid {
-					opt(c)
+					this.opt(c)
 					break
 				}
 			} else {
@@ -185,7 +193,7 @@ func DeadClass_Opt(prog ast.Program) ast.Program {
 	newclasses := make([]ast.Class, 0)
 	for _, c := range p.Classes {
 		if cc, ok := c.(*ast.ClassSingle); ok {
-			if classes.Contains(cc.Name) {
+			if this.classes.Contains(cc.Name) {
 				newclasses = append(newclasses, c)
 			}
 		} else {
@@ -195,12 +203,5 @@ func DeadClass_Opt(prog ast.Program) ast.Program {
 
 	Ast := &ast.ProgramSingle{p.Mainclass, newclasses}
 
-	//trace
-	if util.Trace_contains("deadclass") == true {
-		fmt.Println("before deadclass opt:")
-		ast.NewPP().DumpProg(prog)
-		fmt.Println("\nafter deadclass opt:")
-		ast.NewPP().DumpProg(Ast)
-	}
-	return &ast.ProgramSingle{p.Mainclass, newclasses}
+	return Ast
 }

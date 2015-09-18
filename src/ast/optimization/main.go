@@ -7,6 +7,7 @@ import (
 
 func Opt(prog ast.Program) ast.Program {
 	Ast := prog
+	before_opt := Statistics_Ast(Ast)
 	if !control.Trace_skipPass("deadclass") {
 		control.Verbose("DeadClass-Opt", func() {
 			control.Trace("deadclass", func() {
@@ -40,16 +41,20 @@ func Opt(prog ast.Program) ast.Program {
 			})
 		}, control.VERBOSE_SUBPASS)
 	}
-    if !control.Trace_skipPass("constfold"){
-        control.Verbose("ConstFold-Opt", func(){
-            control.Trace("constfold", func(){
-                Ast = ConstFold(Ast)
-            }, func() {
-                ast.NewPP().DumpProg(Ast)
-            }, func() {
-                ast.NewPP().DumpProg(Ast)
-            })
-        }, control.VERBOSE_SUBPASS)
-    }
+	if !control.Trace_skipPass("constfold") {
+		control.Verbose("ConstFold-Opt", func() {
+			control.Trace("constfold", func() {
+				Ast = ConstFold(Ast)
+			}, func() {
+				ast.NewPP().DumpProg(Ast)
+			}, func() {
+				ast.NewPP().DumpProg(Ast)
+			})
+		}, control.VERBOSE_SUBPASS)
+	}
+	after_opt := Statistics_Ast(Ast)
+	if after_opt < before_opt {
+		Ast = Opt(Ast)
+	}
 	return Ast
 }

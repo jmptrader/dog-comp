@@ -44,7 +44,6 @@ func Trace_add(name string) {
 	traceSet[name] = true
 }
 
-
 func Trace(name string, f func(), dox func(), dor func()) {
 	if Trace_contains(name) {
 		dox()

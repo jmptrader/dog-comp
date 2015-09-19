@@ -3,6 +3,7 @@ package main
 import (
 	"./ast"
 	"./ast/optimization"
+	"./cfg"
 	"./codegen/C"
 	"./control"
 	"./elaborator"
@@ -76,5 +77,11 @@ func main() {
 	//step4: codegen
 	control.Verbose("CodeGen", func() {
 		codegen_c.CodegenC(Ast_c)
+	}, control.VERBOSE_PASS)
+
+	//Ast_c -> Ast_cfg
+	var Ast_cfg cfg.Program
+	control.Verbose("TransCfg", func() {
+		Ast_cfg = cfg.TransCfg(Ast_c)
 	}, control.VERBOSE_PASS)
 }

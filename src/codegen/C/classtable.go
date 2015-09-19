@@ -23,7 +23,7 @@ func (this *ClassTable) initDecs(current string, decs []Dec) {
 	cb := this.table[current]
 	for _, dec := range decs {
 		if d, ok := dec.(*DecSingle); ok {
-			cb.putField(current, d.tp, d.id)
+			cb.putField(current, d.Tp, d.Name)
 		} else {
 			panic("impossible")
 		}

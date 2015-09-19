@@ -46,14 +46,14 @@ func outputVtable(v Vtable) {
 	} else {
 		panic("impossible")
 	}
-	sayln("struct " + vt.id + "_vtable " + vt.id + "_vtable_ =")
+	sayln("struct " + vt.Name + "_vtable " + vt.Name + "_vtable_ =")
 	sayln("{")
-	locals := classLocal[vt.id]
+	locals := classLocal[vt.Name]
 	printSpeaces()
 	say("\"")
 	for _, t := range locals {
-		_, ok := t.tp.(*ClassType)
-		_, ok2 := t.tp.(*ClassType)
+		_, ok := t.Tp.(*ClassType)
+		_, ok2 := t.Tp.(*ClassType)
 		if ok || ok2 {
 			say("1")
 		} else {
@@ -61,9 +61,9 @@ func outputVtable(v Vtable) {
 		}
 	}
 	sayln("\",")
-	for _, f := range vt.methods {
+	for _, f := range vt.Methods {
 		say("  ")
-		sayln(f.classname + "_" + f.id + ",")
+		sayln(f.Classname + "_" + f.Name + ",")
 	}
 	sayln("};\n")
 }
@@ -87,9 +87,9 @@ func outputMainGcStack(mm MainMethod) {
 	printSpeaces()
 	sayln("int locals_gc_map;")
 
-	for _, dec := range m.locals {
+	for _, dec := range m.Locals {
 		if d, ok := dec.(*DecSingle); ok {
-			if t := d.tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
+			if t := d.Tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
 				printSpeaces()
 				pp(d)
 				sayln(";")
@@ -109,7 +109,7 @@ func outputGcStack(mm Method) {
 	} else {
 		panic("impossible")
 	}
-	sayln("struct " + m.classId + "_" + m.id + "_gc_frame")
+	sayln("struct " + m.ClassId + "_" + m.Name + "_gc_frame")
 	sayln("{")
 	indent()
 	printSpeaces()
@@ -120,9 +120,9 @@ func outputGcStack(mm Method) {
 	sayln("int *arguments_base_address;")
 	printSpeaces()
 	sayln("int locals_gc_map;")
-	for _, dec := range m.locals {
+	for _, dec := range m.Locals {
 		if d, ok := dec.(*DecSingle); ok {
-			if t := d.tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
+			if t := d.Tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
 				printSpeaces()
 				pp(d)
 				sayln(";")
@@ -142,10 +142,10 @@ func outputGcMap(method Method) {
 	} else {
 		panic("impossible")
 	}
-	say("char * " + m.classId + "_" + m.id + "_arguments_gc_map = \"")
-	for _, dec := range m.formals {
+	say("char * " + m.ClassId + "_" + m.Name + "_arguments_gc_map = \"")
+	for _, dec := range m.Formals {
 		if d, ok := dec.(*DecSingle); ok {
-			if t := d.tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
+			if t := d.Tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
 				say("1")
 			} else {
 				say("0")
@@ -157,52 +157,52 @@ func outputGcMap(method Method) {
 	sayln("\";")
 	//locals map
 	i := 0
-	for _, dec := range m.locals {
+	for _, dec := range m.Locals {
 		if d, ok := dec.(*DecSingle); ok {
-			if t := d.tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
+			if t := d.Tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
 				i++
 			}
 		} else {
 			panic("impossible")
 		}
 	}
-	sayln("int " + m.classId + "_" + m.id + "_locals_gc_map= " + strconv.Itoa(i) + ";")
+	sayln("int " + m.ClassId + "_" + m.Name + "_locals_gc_map= " + strconv.Itoa(i) + ";")
 	sayln("")
 }
 
 func pp_Exp_Add(e *Add) {
-	pp(e.left)
+	pp(e.Left)
 	say(" + ")
-	pp(e.right)
+	pp(e.Right)
 }
 
 func pp_Exp_And(e *And) {
-	pp(e.left)
+	pp(e.Left)
 	say(" && ")
-	pp(e.right)
+	pp(e.Right)
 }
 
 func pp_Exp_ArraySelect(e *ArraySelect) {
-	pp(e.array)
+	pp(e.Arrayref)
 	say("[")
-	pp(e.index)
+	pp(e.Index)
 	say("+4]")
 }
 
 func pp_Exp_Call(e *Call) {
-	if redec.Contains(e.assign) == false {
-		say("(" + e.assign + "=")
+	if redec.Contains(e.New_id) == false {
+		say("(" + e.New_id + "=")
 	} else {
-		say("(frame." + e.assign + "=")
+		say("(frame." + e.New_id + "=")
 	}
-	pp(e.e)
+	pp(e.E)
 	say(", ")
-	if redec.Contains(e.assign) == false {
-		say(e.assign + "->vptr->" + e.name + "(" + e.assign)
+	if redec.Contains(e.New_id) == false {
+		say(e.New_id + "->vptr->" + e.Name + "(" + e.New_id)
 	} else {
-		say("frame." + e.assign + "->vptr->" + e.name + "(frame." + e.assign)
+		say("frame." + e.New_id + "->vptr->" + e.Name + "(frame." + e.New_id)
 	}
-	for _, x := range e.args {
+	for _, x := range e.Args {
 		say(", ") //XXX
 		pp(x)
 	}
@@ -210,53 +210,53 @@ func pp_Exp_Call(e *Call) {
 }
 
 func pp_Exp_Id(e *Id) {
-	if e.isField == false {
-		if redec.Contains(e.name) == true {
-			say("frame." + e.name)
+	if e.IsField == false {
+		if redec.Contains(e.Name) == true {
+			say("frame." + e.Name)
 		} else {
-			say(e.name)
+			say(e.Name)
 		}
 	} else {
-		say("this->" + e.name)
+		say("this->" + e.Name)
 	}
 }
 
 func pp_Exp_Length(e *Length) {
-	pp(e.array)
+	pp(e.Arrayref)
 	say("[2]")
 }
 
 func pp_Exp_Lt(e *Lt) {
-	pp(e.left)
+	pp(e.Left)
 	say(" < ")
-	pp(e.right)
+	pp(e.Right)
 }
 
 func pp_Exp_NewIntArray(e *NewIntArray) {
 	say("(int*)Tiger_new_array(")
-	pp(e.e)
+	pp(e.E)
 	say(")")
 }
 
 func pp_Exp_NewObject(e *NewObject) {
-	say("((struct " + e.id + "*)(Tiger_new(&" +
-		e.id + "_vtable_, sizeof(struct " + e.id + "))))")
+	say("((struct " + e.Class_name + "*)(Tiger_new(&" +
+		e.Class_name + "_vtable_, sizeof(struct " + e.Class_name + "))))")
 }
 
 func pp_Exp_Not(e *Not) {
 	say("!(")
-	pp(e.e)
+	pp(e.E)
 	say(")")
 }
 
 func pp_Exp_Num(e *Num) {
-	say(strconv.Itoa(e.num))
+	say(strconv.Itoa(e.Value))
 }
 
 func pp_Exp_Sub(e *Sub) {
-	pp(e.left)
+	pp(e.Left)
 	say(" - ")
-	pp(e.right)
+	pp(e.Right)
 }
 
 func pp_Exp_This(e *This) {
@@ -264,9 +264,9 @@ func pp_Exp_This(e *This) {
 }
 
 func pp_Exp_Times(e *Times) {
-	pp(e.left)
+	pp(e.Left)
 	say(" * ")
-	pp(e.right)
+	pp(e.Right)
 }
 
 func pp_Exp(exp Exp) {
@@ -306,34 +306,34 @@ func pp_Exp(exp Exp) {
 
 func pp_Stm_Assign(s *Assign) {
 	printSpeaces()
-	if s.isField == false {
-		if redec.Contains(s.id) == true {
-			say("frame." + s.id + " = ")
+	if s.IsField == false {
+		if redec.Contains(s.Name) == true {
+			say("frame." + s.Name + " = ")
 		} else {
-			say(s.id + " = ")
+			say(s.Name + " = ")
 		}
 	} else {
-		say("this->" + s.id + " = ")
+		say("this->" + s.Name + " = ")
 	}
-	pp(s.e)
+	pp(s.E)
 	sayln(";")
 }
 
 func pp_Stm_AssignArray(s *AssignArray) {
 	printSpeaces()
-	if s.isField == false {
-		if redec.Contains(s.id) == true {
-			say("frame." + s.id + "[")
+	if s.IsField == false {
+		if redec.Contains(s.Name) == true {
+			say("frame." + s.Name + "[")
 		} else {
-			say(s.id + "[")
+			say(s.Name + "[")
 		}
 	} else {
-		say("this->" + s.id + "[")
+		say("this->" + s.Name + "[")
 	}
-	pp(s.index)
+	pp(s.Index)
 	say("+4]")
 	say(" = ")
-	pp(s.e)
+	pp(s.E)
 	sayln(";")
 }
 
@@ -341,7 +341,7 @@ func pp_Stm_Block(s *Block) {
 	printSpeaces()
 	sayln("{")
 	indent()
-	for _, ss := range s.stms {
+	for _, ss := range s.Stms {
 		pp(ss)
 	}
 	unIndent()
@@ -352,16 +352,16 @@ func pp_Stm_Block(s *Block) {
 func pp_Stm_If(s *If) {
 	printSpeaces()
 	say("if (")
-	pp(s.cond)
+	pp(s.Cond)
 	sayln(")")
 	indent()
-	pp(s.thenn)
+	pp(s.Thenn)
 	unIndent()
 	sayln("")
 	printSpeaces()
 	sayln("else")
 	indent()
-	pp(s.elsee)
+	pp(s.Elsee)
 	sayln("")
 	unIndent()
 }
@@ -369,17 +369,17 @@ func pp_Stm_If(s *If) {
 func pp_Stm_Print(s *Print) {
 	printSpeaces()
 	say("System_out_println(")
-	pp(s.e)
+	pp(s.E)
 	sayln(");")
 }
 
 func pp_Stm_While(s *While) {
 	printSpeaces()
 	say("while (")
-	pp(s.cond)
+	pp(s.Cond)
 	sayln(")")
 	indent()
-	pp(s.body)
+	pp(s.Body)
 	unIndent()
 	printSpeaces()
 }
@@ -404,7 +404,7 @@ func pp_Stm(stm Stm) {
 }
 
 func pp_Type_ClassType(t *ClassType) {
-	say("struct " + t.id + "*")
+	say("struct " + t.Name + "*")
 }
 
 func pp_Type_Int(t *Int) {
@@ -429,9 +429,9 @@ func pp_Type(tp Type) {
 }
 
 func pp_Dec_DecSingle(d *DecSingle) {
-	pp(d.tp)
+	pp(d.Tp)
 	say(" ")
-	say(d.id)
+	say(d.Name)
 }
 
 func pp_Dec(dec Dec) {
@@ -445,9 +445,9 @@ func pp_Dec(dec Dec) {
 
 func pp_Method_MethodSingle(m *MethodSingle) {
 	redec.Clear()
-	pp(m.retType)
-	say(" " + m.classId + "_" + m.id + "(")
-	for idx, dec := range m.formals {
+	pp(m.RetType)
+	say(" " + m.ClassId + "_" + m.Name + "(")
+	for idx, dec := range m.Formals {
 		if idx != 0 {
 			say(", ")
 		}
@@ -457,28 +457,28 @@ func pp_Method_MethodSingle(m *MethodSingle) {
 
 	sayln("{")
 	printSpeaces()
-	sayln("struct " + m.classId + "_" + m.id + "_gc_frame frame;")
+	sayln("struct " + m.ClassId + "_" + m.Name + "_gc_frame frame;")
 	printSpeaces()
 	sayln("frame.prev_ = previous;")
 	printSpeaces()
 	sayln("previous = &frame;")
 	printSpeaces()
-	sayln("frame.arguments_gc_map = " + m.classId + "_" + m.id + "_arguments_gc_map;")
+	sayln("frame.arguments_gc_map = " + m.ClassId + "_" + m.Name + "_arguments_gc_map;")
 	printSpeaces()
 	sayln("frame.arguments_base_address = (int*)&this;")
 	printSpeaces()
-	sayln("frame.locals_gc_map = " + m.classId + "_" + m.id + "_locals_gc_map;")
+	sayln("frame.locals_gc_map = " + m.ClassId + "_" + m.Name + "_locals_gc_map;")
 
-	for _, dec := range m.locals {
+	for _, dec := range m.Locals {
 		if d, ok := dec.(*DecSingle); ok {
-			t := d.tp.GetType()
+			t := d.Tp.GetType()
 			printSpeaces()
 			if t != TYPE_INTARRAY && t != TYPE_CLASSTYPE {
 				pp(dec)
 				sayln(";")
 			} else {
-				redec.Add(d.id)
-				sayln("frame." + d.id + "=0;")
+				redec.Add(d.Name)
+				sayln("frame." + d.Name + "=0;")
 			}
 		} else {
 			panic("impossible")
@@ -486,7 +486,7 @@ func pp_Method_MethodSingle(m *MethodSingle) {
 	}
 
 	sayln("")
-	for _, stm := range m.stms {
+	for _, stm := range m.Stms {
 		pp(stm)
 	}
 	sayln("")
@@ -494,7 +494,7 @@ func pp_Method_MethodSingle(m *MethodSingle) {
 	sayln("previous = frame.prev_;")
 
 	say("  return ")
-	pp(m.retExp)
+	pp(m.RetExp)
 	sayln(";")
 	sayln("}")
 
@@ -529,23 +529,23 @@ func pp_Method_MainMethodSingle(m *MainMethodSingle) {
 	sayln("frame.locals_gc_map = Tiger_main_locals_gc_map;")
 	unIndent()
 
-	for _, dec := range m.locals {
+	for _, dec := range m.Locals {
 		if d, ok := dec.(*DecSingle); ok {
 			say("  ")
-			t := d.tp.GetType()
+			t := d.Tp.GetType()
 			if t != TYPE_INTARRAY && t != TYPE_CLASSTYPE {
 				pp(d)
 				sayln(";")
 			} else {
-				redec.Add(d.id)
-				sayln("frame." + d.id + "=0;")
+				redec.Add(d.Name)
+				sayln("frame." + d.Name + "=0;")
 			}
 		} else {
 			panic("impossible")
 		}
 	}
 	indent()
-	pp(m.stm)
+	pp(m.Stms)
 	sayln("return 0;\n}\n")
 }
 
@@ -559,15 +559,15 @@ func pp_MainMethod(method MainMethod) {
 }
 
 func pp_Vtable_VtableSingle(v *VtableSingle) {
-	sayln("struct " + v.id + "_vtable")
+	sayln("struct " + v.Name + "_vtable")
 	sayln("{")
 	printSpeaces()
-	sayln("char* " + v.id + "_gc_map;")
-	for _, f := range v.methods {
+	sayln("char* " + v.Name + "_gc_map;")
+	for _, f := range v.Methods {
 		say("  ")
-		pp(f.ret_type)
-		say(" (*" + f.id + ")(")
-		for idx, dec := range f.args {
+		pp(f.RetType)
+		say(" (*" + f.Name + ")(")
+		for idx, dec := range f.Args {
 			if idx != 0 {
 				say(", ")
 			}
@@ -596,9 +596,9 @@ func pp_Class(cc Class) {
 		panic("impossible")
 	}
 	locals := make([]*Tuple, 0)
-	sayln("struct " + c.id)
+	sayln("struct " + c.Name)
 	sayln("{")
-	sayln("  struct " + c.id + "_vtable *vptr;")
+	sayln("  struct " + c.Name + "_vtable *vptr;")
 
 	printSpeaces()
 	sayln("int isObjOrArray;")
@@ -607,14 +607,14 @@ func pp_Class(cc Class) {
 	printSpeaces()
 	sayln("void *forwarding;")
 
-	for _, t := range c.decs {
+	for _, t := range c.Decs {
 		say("  ")
-		pp(t.tp)
+		pp(t.Tp)
 		say("  ")
-		sayln(t.field_name + ";")
+		sayln(t.Field_name + ";")
 		locals = append(locals, t)
 	}
-	classLocal[c.id] = locals
+	classLocal[c.Name] = locals
 	sayln("};")
 }
 
@@ -634,21 +634,21 @@ func pp_Program(p Program) {
 	}
 
 	sayln("// strutures")
-	for _, c := range pc.classes {
+	for _, c := range pc.Classes {
 		pp(c)
 	}
 	sayln("// vtables")
-	for _, v := range pc.vtables {
+	for _, v := range pc.Vtables {
 		pp(v)
 	}
 	sayln("")
 
 	sayln("// method decls")
-	for _, m := range pc.methods {
+	for _, m := range pc.Methods {
 		if mm, ok := m.(*MethodSingle); ok {
-			pp(mm.retType)
-			say(" " + mm.classId + "_" + mm.id + "(")
-			for idx, d := range mm.formals {
+			pp(mm.RetType)
+			say(" " + mm.ClassId + "_" + mm.Name + "(")
+			for idx, d := range mm.Formals {
 				if idx != 0 {
 					say(", ")
 				}
@@ -661,30 +661,30 @@ func pp_Program(p Program) {
 	}
 
 	sayln("// vtables")
-	for _, v := range pc.vtables {
+	for _, v := range pc.Vtables {
 		outputVtable(v)
 	}
 	sayln("")
 
 	sayln("// GC stack frames")
-	outputMainGcStack(pc.mainMethod)
-	for _, method := range pc.methods {
+	outputMainGcStack(pc.Mainmethod)
+	for _, method := range pc.Methods {
 		outputGcStack(method)
 	}
 
 	sayln("// memory GC maps")
 	sayln("int Tiger_main_locals_gc_map = 1;\n")
-	for _, m := range pc.methods {
+	for _, m := range pc.Methods {
 		outputGcMap(m)
 	}
 
 	sayln("// methods")
-	for _, m := range pc.methods {
+	for _, m := range pc.Methods {
 		pp(m)
 	}
 	sayln("")
 	sayln("// main")
-	pp(pc.mainMethod)
+	pp(pc.Mainmethod)
 	sayln("")
 	say("\n\n")
 }

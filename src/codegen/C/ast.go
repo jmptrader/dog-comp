@@ -16,7 +16,7 @@ type Type interface {
 }
 
 type ClassType struct {
-	id string
+	Name string
 }
 
 func (this *ClassType) _type()  {}
@@ -25,7 +25,7 @@ func (this *ClassType) GetType() int {
 	return TYPE_CLASSTYPE
 }
 func (this *ClassType) String() string {
-	return "@" + this.id
+	return "@" + this.Name
 }
 
 type Int struct {
@@ -57,95 +57,96 @@ type Exp interface {
 }
 
 type Add struct {
-	left  Exp
-	right Exp
+	Left  Exp
+	Right Exp
 }
 
 func (this *Add) _exp()   {}
 func (this *Add) accept() {}
 
 type And struct {
-	left  Exp
-	right Exp
+	Left  Exp
+	Right Exp
 }
 
 func (this *And) _exp()   {}
 func (this *And) accept() {}
 
 type ArraySelect struct {
-	array Exp
-	index Exp
+	Arrayref Exp
+	Index    Exp
 }
 
 func (this *ArraySelect) _exp()   {}
 func (this *ArraySelect) accept() {}
 
 type Call struct {
-	assign string
-	e      Exp
-	name   string
-	args   []Exp
+	New_id  string //callee id new Sub().Name -> x_0 = new Sub(), x_0.Name(Args)
+	E       Exp
+	Name    string //method name
+	Args    []Exp
+	RetType Type
 }
 
 func (this *Call) _exp()   {}
 func (this *Call) accept() {}
 
 type Id struct {
-	name    string
-	isField bool
+	Name    string
+	IsField bool
 }
 
 func (this *Id) _exp()   {}
 func (this *Id) accept() {}
 
 type Length struct {
-	array Exp
+	Arrayref Exp
 }
 
 func (this *Length) _exp()   {}
 func (this *Length) accept() {}
 
 type Lt struct {
-	left  Exp
-	right Exp
+	Left  Exp
+	Right Exp
 }
 
 func (this *Lt) _exp()   {}
 func (this *Lt) accept() {}
 
 type NewIntArray struct {
-	e    Exp
-	name string
+	E    Exp
+	Name string
 }
 
 func (this *NewIntArray) _exp()  {}
 func (this NewIntArray) accept() {}
 
 type NewObject struct {
-	id   string
-	name string
+	Class_name string //this field is used to name the allocation
+	Name       string
 }
 
 func (this *NewObject) _exp()   {}
 func (this *NewObject) accept() {}
 
 type Not struct {
-	e Exp
+	E Exp
 }
 
 func (this *Not) _exp()   {}
 func (this *Not) accept() {}
 
 type Num struct {
-	num int
+	Value int
 }
 
 func (this *Num) _exp()   {}
 func (this *Num) accept() {}
 
 type Sub struct {
-	left  Exp
-	right Exp
+	Left  Exp
+	Right Exp
 }
 
 func (this *Sub) _exp()   {}
@@ -158,8 +159,8 @@ func (this *This) _exp()   {}
 func (this *This) accept() {}
 
 type Times struct {
-	left  Exp
-	right Exp
+	Left  Exp
+	Right Exp
 }
 
 func (this *Times) _exp()   {}
@@ -174,50 +175,50 @@ type Stm interface {
 }
 
 type Assign struct {
-	id      string
-	e       Exp
-	isField bool
+	Name    string
+	E       Exp
+	IsField bool
 }
 
 func (this *Assign) _stm()   {}
 func (this *Assign) accept() {}
 
 type AssignArray struct {
-	id      string
-	index   Exp
-	e       Exp
-	isField bool
+	Name    string
+	Index   Exp
+	E       Exp
+	IsField bool
 }
 
 func (this *AssignArray) _stm()   {}
 func (this *AssignArray) accept() {}
 
 type Block struct {
-	stms []Stm
+	Stms []Stm
 }
 
 func (this *Block) _stm()   {}
 func (this *Block) accept() {}
 
 type If struct {
-	cond  Exp
-	thenn Stm
-	elsee Stm
+	Cond  Exp
+	Thenn Stm
+	Elsee Stm
 }
 
 func (this *If) _stm()   {}
 func (this *If) accept() {}
 
 type Print struct {
-	e Exp
+	E Exp
 }
 
 func (this *Print) _stm()   {}
 func (this *Print) accept() {}
 
 type While struct {
-	cond Exp
-	body Stm
+	Cond Exp
+	Body Stm
 }
 
 func (this *While) _stm()   {}
@@ -232,17 +233,17 @@ type Dec interface {
 	String() string
 }
 type DecSingle struct {
-	tp Type
-	id string
+	Tp   Type
+	Name string
 }
 
 func (this *DecSingle) _dec()   {}
 func (this *DecSingle) accept() {}
 func (this *DecSingle) GetType() int {
-	return this.tp.GetType()
+	return this.Tp.GetType()
 }
 func (this *DecSingle) String() string {
-	return this.tp.String() + " " + this.id
+	return this.Tp.String() + " " + this.Name
 }
 
 type MainMethod interface {
@@ -250,8 +251,8 @@ type MainMethod interface {
 	accept()
 }
 type MainMethodSingle struct {
-	locals []Dec
-	stm    Stm
+	Locals []Dec
+	Stms   Stm
 }
 
 func (this *MainMethodSingle) _maincmethod() {}
@@ -263,13 +264,13 @@ type Method interface {
 }
 
 type MethodSingle struct {
-	retType Type
-	classId string // class name
-	id      string //method name
-	formals []Dec
-	locals  []Dec
-	stms    []Stm
-	retExp  Exp
+	RetType Type
+	ClassId string // class name
+	Name    string //method name
+	Formals []Dec
+	Locals  []Dec
+	Stms    []Stm
+	RetExp  Exp
 }
 
 func (this *MethodSingle) _method() {}
@@ -280,8 +281,8 @@ type Class interface {
 	accept()
 }
 type ClassSingle struct {
-	id   string
-	decs []*Tuple
+	Name string
+	Decs []*Tuple
 }
 
 func (this *ClassSingle) _class() {}
@@ -292,8 +293,8 @@ type Vtable interface {
 	accept()
 }
 type VtableSingle struct {
-	id      string
-	methods []*Ftuple
+	Name    string
+	Methods []*Ftuple
 }
 
 func (this *VtableSingle) _vtable() {}
@@ -304,10 +305,10 @@ type Program interface {
 	accept()
 }
 type ProgramC struct {
-	classes    []Class
-	vtables    []Vtable
-	methods    []Method
-	mainMethod MainMethod
+	Classes    []Class
+	Vtables    []Vtable
+	Methods    []Method
+	Mainmethod MainMethod
 }
 
 func (this *ProgramC) _prog()  {}

@@ -6,7 +6,7 @@ import (
 
 var count int
 
-func Next() string {
+func Temp_next() string {
 	s := "x_" + strconv.Itoa(count)
 	count++
 	return s

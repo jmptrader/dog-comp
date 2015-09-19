@@ -6,7 +6,7 @@ import (
 )
 
 func TransCfg(prog codegen_c.Program) Program {
-	var f_additonal_locals []Dec
+	var f_additional_locals []Dec
 	var f_stm_transfer []interface{}
 	var f_operand Operand
 	var f_tp Type
@@ -25,14 +25,14 @@ func TransCfg(prog codegen_c.Program) Program {
 	genVar := func() string {
 		fresh := util.Temp_next()
 		dec := &DecSingle{&IntType{}, fresh}
-		f_additonal_locals = append(f_additonal_locals, dec)
+		f_additional_locals = append(f_additional_locals, dec)
 		return fresh
 	}
 
 	genVarT := func(t Type) string {
 		fresh := util.Temp_next()
 		dec := &DecSingle{t, fresh}
-		f_additonal_locals = append(f_additonal_locals, dec)
+		f_additional_locals = append(f_additional_locals, dec)
 		return fresh
 	}
 
@@ -57,6 +57,7 @@ func TransCfg(prog codegen_c.Program) Program {
 				panic("impossible")
 			}
 		}
+		f_stm_transfer = make([]interface{}, 0)
 		return blocks
 	}
 
@@ -154,9 +155,9 @@ func TransCfg(prog codegen_c.Program) Program {
 			emit(&NewIntArray{dst, size})
 			f_operand = &Var{dst, false}
 		case *codegen_c.NewObject:
-			dst := genVarT(&ClassType{e.Name})
-			emit(&NewObject{dst, e.Name})
-			f_operand = &Var{dst, false}
+			dst := genVarT(&ClassType{e.Class_name})
+			emit(&NewObject{"frame." + dst, e.Class_name})
+			f_operand = &Var{"frame." + dst, false}
 		case *codegen_c.Not:
 			dst := genVar()
 			trans(e.E)
@@ -207,6 +208,7 @@ func TransCfg(prog codegen_c.Program) Program {
 			t := util.Label_new()
 			f := util.Label_new()
 			e := util.Label_new() //exit labed
+			trans(s.Cond)
 			emit(&If{f_operand, t, f})
 			emit(f)
 			trans(s.Elsee)
@@ -258,7 +260,7 @@ func TransCfg(prog codegen_c.Program) Program {
 	trans_Method := func(mm codegen_c.Method) {
 		switch m := mm.(type) {
 		case *codegen_c.MethodSingle:
-			f_additonal_locals = make([]Dec, 0)
+			f_additional_locals = make([]Dec, 0)
 			trans(m.RetType)
 			ret_type := f_tp
 			new_formals := make([]Dec, 0)
@@ -283,7 +285,7 @@ func TransCfg(prog codegen_c.Program) Program {
 			//TODO cookblock
 			//util.Todo()
 			blocks := cookBlocks()
-			for _, d := range f_additonal_locals {
+			for _, d := range f_additional_locals {
 				new_locals = append(new_locals, d)
 			}
 			f_method = &MethodSingle{ret_type,
@@ -302,7 +304,7 @@ func TransCfg(prog codegen_c.Program) Program {
 	trans_MainMethod := func(mm codegen_c.MainMethod) {
 		switch m := mm.(type) {
 		case *codegen_c.MainMethodSingle:
-			f_additonal_locals = make([]Dec, 0) //fresh
+			f_additional_locals = make([]Dec, 0) //fresh
 			locals := make([]Dec, 0)
 			for _, d := range m.Locals {
 				trans(d)
@@ -313,7 +315,7 @@ func TransCfg(prog codegen_c.Program) Program {
 			trans(m.Stms)
 			emit(&Return{&Int{0}})
 			blocks := cookBlocks()
-			for _, d := range f_additonal_locals {
+			for _, d := range f_additional_locals {
 				locals = append(locals, d)
 			}
 			f_main_method = &MainMethodSingle{locals, blocks}
@@ -361,6 +363,7 @@ func TransCfg(prog codegen_c.Program) Program {
 	}
 
 	var Ast *ProgramSingle
+	f_stm_transfer = make([]interface{}, 0)
 	if p, ok := prog.(*codegen_c.ProgramC); ok {
 		new_classes := make([]Class, 0)
 		for _, c := range p.Classes {

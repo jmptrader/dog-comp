@@ -165,7 +165,7 @@ func (this *AssignArray) accept() {}
 func (this *AssignArray) _stm()   {}
 
 type InvokeVirtual struct {
-	des  string
+	dst  string
 	obj  string
 	f    string
 	args []Operand //type of the destination variable
@@ -183,7 +183,7 @@ func (this *Length) accept() {}
 func (this *Length) _stm()   {}
 
 type Lt struct {
-	des   string
+	dst   string
 	tp    Type
 	left  Operand
 	right Operand
@@ -193,7 +193,7 @@ func (this *Lt) accept() {}
 func (this *Lt) _stm()   {}
 
 type Move struct {
-	des     string
+	dst     string
 	tp      Type
 	src     Operand
 	IsField bool
@@ -283,29 +283,39 @@ func (this *Return) accept()    {}
 func (this *Return) _transfer() {}
 
 //Type
+const (
+	TYPE_INT = iota
+	TYPE_INTARRAY
+	TYPE_CLASSTYPE
+)
+
 type Type interface {
 	accept()
 	_type()
+	GetType() int
 }
 
 type ClassType struct {
 	id string
 }
 
-func (this *ClassType) accept() {}
-func (this *ClassType) _type()  {}
+func (this *ClassType) accept()      {}
+func (this *ClassType) _type()       {}
+func (this *ClassType) GetType() int { return TYPE_CLASSTYPE }
 
 type IntType struct {
 }
 
-func (this *IntType) accept() {}
-func (this *IntType) _type()  {}
+func (this *IntType) accept()      {}
+func (this *IntType) _type()       {}
+func (this *IntType) GetType() int { return TYPE_INT }
 
 type IntArrayType struct {
 }
 
-func (this *IntArrayType) accept() {}
-func (this *IntArrayType) _type()  {}
+func (this *IntArrayType) accept()      {}
+func (this *IntArrayType) _type()       {}
+func (this *IntArrayType) GetType() int { return TYPE_INTARRAY }
 
 //Vtable
 type Vtable interface {

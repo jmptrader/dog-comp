@@ -75,13 +75,20 @@ func main() {
 		}
 	}, control.VERBOSE_PASS)
 	//step4: codegen
-	control.Verbose("CodeGen", func() {
-		codegen_c.CodegenC(Ast_c)
-	}, control.VERBOSE_PASS)
+	/*
+		control.Verbose("CodeGen", func() {
+			codegen_c.CodegenC(Ast_c)
+		}, control.VERBOSE_PASS)
+	*/
 
 	//Ast_c -> Ast_cfg
 	var Ast_cfg cfg.Program
 	control.Verbose("TransCfg", func() {
 		Ast_cfg = cfg.TransCfg(Ast_c)
+	}, control.VERBOSE_PASS)
+
+	//CodegenCfg
+	control.Verbose("GenCfg", func() {
+		cfg.CodegenCfg(Ast_cfg)
 	}, control.VERBOSE_PASS)
 }

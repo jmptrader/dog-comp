@@ -224,7 +224,7 @@ func (this *ArraySelect) _exp() {
 
 //Exp.Call /*{{{*/
 type Call struct {
-	Callee     Exp
+	Callee     Exp //new Sub().MethodName(ArgsList)
 	MethodName string
 	ArgsList   []Exp
 	Firsttype  string

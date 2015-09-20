@@ -27,7 +27,7 @@ var prog_c Program
  * For generate additional variable id
  */
 func genId() string {
-	return util.Next()
+	return util.Temp_next()
 }
 
 func trans_Method(m ast.Method) {
@@ -101,7 +101,8 @@ func trans_Exp_Call(e *ast.Call) {
 		trans(x)
 		args = append(args, exp_c)
 	}
-	exp_c = &Call{new_id, exp, e.MethodName, args}
+	trans(e.Rt)
+	exp_c = &Call{new_id, exp, e.MethodName, args, type_c}
 }
 
 func trans_Exp_False(e *ast.False) {

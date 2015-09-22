@@ -231,6 +231,7 @@ func CodegenCfg(p Program) {
 			say("  goto " + t.falsee.String() + ";\n")
 		case *Return:
 			printSpeaces()
+			//XXX this is for the gc
 			sayln("previous = frame.prev_;")
 			printSpeaces()
 			say("return ")

@@ -91,4 +91,7 @@ func main() {
 	control.Verbose("GenCfg", func() {
 		cfg.CodegenCfg(Ast_cfg)
 	}, control.VERBOSE_PASS)
+
+	cfg.Visualize(Ast_cfg)
+
 }

@@ -24,3 +24,13 @@ var Ast_dumpAst bool = false
 
 var Elab_classTable bool = false
 var Elab_methodTable bool = false
+
+const (
+	None = iota
+	Pdf
+	Ps
+	Jpg
+	Svg
+)
+
+var Visualize_format int = None

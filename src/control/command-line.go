@@ -1,7 +1,6 @@
 package control
 
 import (
-	"../util"
 	"fmt"
 	"os"
 	"strconv"
@@ -190,6 +189,28 @@ func args_init() {
 					panic("impossible")
 				}
 			}},
+		{"visualize",
+			"{pdf|ps|svg|jpg}",
+			"graph format",
+			STRING,
+			func(c interface{}) {
+				if s, ok := c.(string); ok {
+					switch s {
+					case "pdf":
+						Visualize_format = Pdf
+					case "ps":
+						Visualize_format = Ps
+					case "jpg":
+						Visualize_format = Jpg
+					case "svg":
+						Visualize_format = Svg
+					default:
+						argException("-visualize {pdf|ps|jpg|svg}")
+					}
+				} else {
+					panic("impossible")
+				}
+			}},
 		{"help",
 			"",
 			"show this help information",
@@ -224,7 +245,7 @@ func Do_arg(args []string) string {
 			case EMPTY:
 				arg.action(nil)
 			case BOOL:
-				util.Todo()
+				panic("TODO") //TODO
 			case INT:
 				i++
 				if i >= len(args) {
@@ -240,7 +261,7 @@ func Do_arg(args []string) string {
 				theArg := args[i]
 				(arg.action)(theArg)
 			case STRINGLIST:
-				util.Todo()
+				panic("TODO") //TODO
 			default:
 			}
 			break

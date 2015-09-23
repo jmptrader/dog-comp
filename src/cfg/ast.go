@@ -2,6 +2,7 @@ package cfg
 
 import (
 	"../util"
+	"strconv"
 )
 
 type Acceptable interface {
@@ -14,9 +15,9 @@ type Block interface {
 	_block()
 }
 type BlockSingle struct {
-	label    *util.Label
-	stms     []Stm
-	transfer Transfer
+	Label_id *util.Label
+	Stms     []Stm
+	Trans    Transfer
 }
 
 func (this *BlockSingle) accept() {}
@@ -29,8 +30,8 @@ type Class interface {
 }
 
 type ClassSingle struct {
-	id   string
-	decs []*Tuple
+	Name string
+	Decs []*Tuple
 }
 
 func (this *ClassSingle) accept() {}
@@ -43,8 +44,8 @@ type Dec interface {
 }
 
 type DecSingle struct {
-	tp Type
-	id string
+	Tp   Type
+	Name string
 }
 
 func (this *DecSingle) accept() {}
@@ -57,8 +58,8 @@ type MainMethod interface {
 }
 
 type MainMethodSingle struct {
-	locals []Dec
-	blocks []Block
+	Locals []Dec
+	Blocks []Block
 }
 
 func (this *MainMethodSingle) accept()     {}
@@ -71,13 +72,13 @@ type Method interface {
 }
 
 type MethodSingle struct {
-	ret_type Type
-	name     string
-	classId  string
-	formals  []Dec
-	locals   []Dec
-	blocks   []Block
-	entry    *util.Label
+	Ret_type Type
+	Name     string
+	ClassId  string
+	Formals  []Dec
+	Locals   []Dec
+	Blocks   []Block
+	Entry    *util.Label
 }
 
 func (this *MethodSingle) accept()  {}
@@ -87,22 +88,29 @@ func (this *MethodSingle) _method() {}
 type Operand interface {
 	accept()
 	_operand()
+	String() string
 }
 
 type Int struct {
-	value int
+	Value int
 }
 
 func (this *Int) accept()   {}
 func (this *Int) _operand() {}
+func (this *Int) String() string {
+	return strconv.Itoa(this.Value)
+}
 
 type Var struct {
-	id      string
-	isField bool
+	Name    string
+	IsField bool
 }
 
 func (this *Var) accept()   {}
 func (this *Var) _operand() {}
+func (this *Var) String() string {
+	return this.Name
+}
 
 //prog
 type Program interface {
@@ -111,10 +119,10 @@ type Program interface {
 }
 
 type ProgramSingle struct {
-	classes     []Class
-	vtables     []Vtable
-	methods     []Method
-	main_method MainMethod
+	Classes     []Class
+	Vtables     []Vtable
+	Methods     []Method
+	Main_method MainMethod
 }
 
 func (this *ProgramSingle) accept() {}
@@ -124,163 +132,225 @@ func (this *ProgramSingle) _prog()  {}
 type Stm interface {
 	accept()
 	_stm()
+	String() string
 }
 
 type Add struct {
-	dst   string
-	tp    Type
-	left  Operand
-	right Operand
+	Dst   string
+	Tp    Type
+	Left  Operand
+	Right Operand
 }
 
 func (this *Add) accept() {}
 func (this *Add) _stm()   {}
+func (this *Add) String() string {
+	return this.Dst + " = " + this.Left.String() + " + " +
+		this.Right.String() + ";"
+}
 
 type And struct {
-	dst   string
-	left  Operand
-	right Operand
+	Dst   string
+	Left  Operand
+	Right Operand
 }
 
 func (this *And) accept() {}
 func (this *And) _stm()   {}
+func (this *And) String() string {
+	return this.Dst + " = " + this.Left.String() + " && " +
+		this.Right.String() + ";"
+}
 
 type ArraySelect struct {
-	id    string
-	array Operand
-	index Operand
+	Name     string
+	Arrayref Operand
+	Index    Operand
 }
 
 func (this *ArraySelect) accept() {}
 func (this *ArraySelect) _stm()   {}
+func (this *ArraySelect) String() string {
+	return this.Name + " = " + this.Arrayref.String() + "[" + this.Index.String() +
+		"+4];"
+}
 
 type AssignArray struct {
-	dst     string
-	index   Operand
-	exp     Operand
-	isField bool
+	Dst     string
+	Index   Operand
+	E       Operand
+	IsField bool
 }
 
 func (this *AssignArray) accept() {}
 func (this *AssignArray) _stm()   {}
+func (this *AssignArray) String() string {
+	return this.Dst + "[" + this.Index.String() + "+4]=" + this.E.String() + ";"
+}
 
 type InvokeVirtual struct {
-	dst  string
-	obj  string
-	f    string
-	args []Operand //type of the destination variable
+	Dst  string
+	Obj  string
+	F    string
+	Args []Operand //type of the destination variable
 }
 
 func (this *InvokeVirtual) accept() {}
 func (this *InvokeVirtual) _stm()   {}
+func (this *InvokeVirtual) String() string {
+	return this.Dst + " = " + this.Obj + "->vptr->" +
+		this.F + "(" + this.Obj + " ... );"
+}
 
 type Length struct {
-	dst   string
-	array Operand
+	Dst      string
+	Arrayref Operand
 }
 
 func (this *Length) accept() {}
 func (this *Length) _stm()   {}
+func (this *Length) String() string {
+	return this.Dst + " = " + this.Arrayref.String() + "[2];"
+}
 
 type Lt struct {
-	dst   string
-	tp    Type
-	left  Operand
-	right Operand
+	Dst   string
+	Tp    Type
+	Left  Operand
+	Right Operand
 }
 
 func (this *Lt) accept() {}
 func (this *Lt) _stm()   {}
+func (this *Lt) String() string {
+	return this.Dst + " = " + this.Left.String() + " < " +
+		this.Right.String() + ";"
+}
 
 type Move struct {
-	dst     string
-	tp      Type
-	src     Operand
+	Dst     string
+	Tp      Type
+	Src     Operand
 	IsField bool
 }
 
 func (this *Move) accept() {}
 func (this *Move) _stm()   {}
+func (this *Move) String() string {
+	return this.Dst + " = " + this.Src.String()
+}
 
 type NewIntArray struct {
-	dst string
-	exp Operand
+	Dst string
+	E   Operand
 }
 
 func (this *NewIntArray) accept() {}
 func (this *NewIntArray) _stm()   {}
+func (this *NewIntArray) String() string {
+	return this.Dst + "= (int*)Tiger_new_array(" +
+		this.E.String() + ")"
+}
 
 type NewObject struct {
-	dst string
-	c   string
+	Dst        string
+	Class_name string
 }
 
 func (this *NewObject) accept() {}
 func (this *NewObject) _stm()   {}
+func (this *NewObject) String() string {
+	return this.Dst + " = " + this.Class_name + ";"
+}
 
 type Not struct {
-	dst string
-	exp Operand
+	Dst string
+	E   Operand
 }
 
 func (this *Not) accept() {}
 func (this *Not) _stm()   {}
+func (this *Not) String() string {
+	return this.Dst + " = !" + this.E.String()
+}
 
 type Print struct {
-	arg Operand
+	Args Operand
 }
 
 func (this *Print) accept() {}
 func (this *Print) _stm()   {}
+func (this *Print) String() string {
+	return "System_out_printtln(" + this.Args.String() + ");"
+}
 
 type Sub struct {
-	dst   string
-	tp    Type
-	left  Operand
-	right Operand
+	Dst   string
+	Tp    Type
+	Left  Operand
+	Right Operand
 }
 
 func (this *Sub) accept() {}
 func (this *Sub) _stm()   {}
+func (this *Sub) String() string {
+	return this.Dst + " = " + this.Left.String() + " - " +
+		this.Right.String() + ";"
+}
 
 type Times struct {
-	dst   string
-	tp    Type
-	left  Operand
-	right Operand
+	Dst   string
+	Tp    Type
+	Left  Operand
+	Right Operand
 }
 
 func (this *Times) accept() {}
 func (this *Times) _stm()   {}
+func (this *Times) String() string {
+	return this.Dst + " = " + this.Left.String() + " * " +
+		this.Right.String() + ";"
+}
 
 //Transfer
 type Transfer interface {
 	accept()
 	_transfer()
+	String() string
 }
 
 type Goto struct {
-	label *util.Label
+	Label_id *util.Label
 }
 
 func (this *Goto) accept()    {}
 func (this *Goto) _transfer() {}
+func (this *Goto) String() string {
+	return "goto " + this.Label_id.String()
+}
 
 type If struct {
-	cond   Operand
-	truee  *util.Label
-	falsee *util.Label
+	Cond   Operand
+	Truee  *util.Label
+	Falsee *util.Label
 }
 
 func (this *If) accept()    {}
 func (this *If) _transfer() {}
+func (this *If) String() string {
+	return "if " + this.Cond.String() + " " + "goto " + this.Truee.String() +
+		" else " + "goto " + this.Falsee.String()
+}
 
 type Return struct {
-	op Operand
+	Op Operand
 }
 
 func (this *Return) accept()    {}
 func (this *Return) _transfer() {}
+func (this *Return) String() string {
+	return "return " + this.Op.String() + ";"
+}
 
 //Type
 const (
@@ -296,7 +366,7 @@ type Type interface {
 }
 
 type ClassType struct {
-	id string
+	Name string
 }
 
 func (this *ClassType) accept()      {}
@@ -324,8 +394,8 @@ type Vtable interface {
 }
 
 type VtableSingle struct {
-	id      string
-	methods []*Ftuple
+	Name    string
+	Methods []*Ftuple
 }
 
 func (this *VtableSingle) accept()  {}

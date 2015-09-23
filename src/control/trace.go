@@ -52,5 +52,4 @@ func Trace(name string, f func(), dox func(), dor func()) {
 	if Trace_contains(name) {
 		dor()
 	}
-
 }

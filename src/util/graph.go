@@ -9,6 +9,8 @@ type Graph struct {
 type Node struct {
 	data        interface{}
 	edges       []*Edge
+	indegree    int
+	outdegree   int
 	Node_String func(interface{}) string
 }
 
@@ -16,6 +18,8 @@ func (this *Graph) Node_new(data interface{}) *Node {
 	o := new(Node)
 	o.data = data
 	o.edges = make([]*Edge, 0)
+	o.indegree = 0
+	o.outdegree = 0
 	o.Node_String = this.Node_String
 	return o
 }
@@ -60,6 +64,8 @@ func (this *Graph) AddNode(data interface{}) {
 }
 
 func (this *Graph) addEdge(from *Node, to *Node) {
+	from.outdegree++
+	to.indegree++
 	from.edges = append(from.edges, &Edge{from, to})
 }
 
@@ -76,6 +82,9 @@ func (this *Graph) Visualize() {
 	dot := Dot_new()
 	fname := this.gname
 	for _, n := range this.nodes {
+		if n.indegree == 0 && n.outdegree == 0 {
+			dot.InsertOne(n.String())
+		}
 		for _, e := range n.edges {
 			//dot.Insert(e.from.String(), e.to.String())
 			dot.Insert(e.from.String(), e.to.String())

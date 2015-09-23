@@ -63,10 +63,10 @@ func CodegenCfg(p Program) {
 		} else {
 			panic("impossible")
 		}
-		say("char * " + m.classId + "_" + m.name + "_arguments_gc_map = \"")
-		for _, dec := range m.formals {
+		say("char * " + m.ClassId + "_" + m.Name + "_arguments_gc_map = \"")
+		for _, dec := range m.Formals {
 			if d, ok := dec.(*DecSingle); ok {
-				if t := d.tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
+				if t := d.Tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
 					say("1")
 				} else {
 					say("0")
@@ -78,16 +78,16 @@ func CodegenCfg(p Program) {
 		sayln("\";")
 		//locals map
 		i := 0
-		for _, dec := range m.locals {
+		for _, dec := range m.Locals {
 			if d, ok := dec.(*DecSingle); ok {
-				if t := d.tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
+				if t := d.Tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
 					i++
 				}
 			} else {
 				panic("impossible")
 			}
 		}
-		sayln("int " + m.classId + "_" + m.name + "_locals_gc_map= " + strconv.Itoa(i) + ";")
+		sayln("int " + m.ClassId + "_" + m.Name + "_locals_gc_map= " + strconv.Itoa(i) + ";")
 		sayln("")
 	}
 
@@ -110,9 +110,9 @@ func CodegenCfg(p Program) {
 		printSpeaces()
 		sayln("int locals_gc_map;")
 
-		for _, dec := range m.locals {
+		for _, dec := range m.Locals {
 			if d, ok := dec.(*DecSingle); ok {
-				if t := d.tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
+				if t := d.Tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
 					printSpeaces()
 					trans(d)
 					sayln(";")
@@ -132,7 +132,7 @@ func CodegenCfg(p Program) {
 		} else {
 			panic("impossible")
 		}
-		sayln("struct " + m.classId + "_" + m.name + "_gc_frame")
+		sayln("struct " + m.ClassId + "_" + m.Name + "_gc_frame")
 		sayln("{")
 		indent()
 		printSpeaces()
@@ -143,9 +143,9 @@ func CodegenCfg(p Program) {
 		sayln("int *arguments_base_address;")
 		printSpeaces()
 		sayln("int locals_gc_map;")
-		for _, dec := range m.locals {
+		for _, dec := range m.Locals {
 			if d, ok := dec.(*DecSingle); ok {
-				if t := d.tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
+				if t := d.Tp.GetType(); t == TYPE_INTARRAY || t == TYPE_CLASSTYPE {
 					printSpeaces()
 					trans(d)
 					sayln(";")
@@ -165,11 +165,11 @@ func CodegenCfg(p Program) {
 		} else {
 			panic("impossible")
 		}
-		sayln("struct " + vt.id + "_vtable " + vt.id + "_vtable_ =")
+		sayln("struct " + vt.Name + "_vtable " + vt.Name + "_vtable_ =")
 		sayln("{")
 		//According to the f_class_dec, generate class
 		//Gc map
-		locals := f_class_dec[vt.id]
+		locals := f_class_dec[vt.Name]
 		printSpeaces()
 		say("\"")
 		for _, t := range locals {
@@ -182,7 +182,7 @@ func CodegenCfg(p Program) {
 			}
 		}
 		sayln("\",")
-		for _, f := range vt.methods {
+		for _, f := range vt.Methods {
 			say("  ")
 			sayln(f.class_name + "_" + f.id + ",")
 		}
@@ -196,7 +196,7 @@ func CodegenCfg(p Program) {
 		case *IntArrayType:
 			say("int*")
 		case *ClassType:
-			say("struct " + t.id + "*")
+			say("struct " + t.Name + "*")
 		default:
 			panic("impossible")
 		}
@@ -205,9 +205,9 @@ func CodegenCfg(p Program) {
 	trans_Dec := func(dd Dec) {
 		switch d := dd.(type) {
 		case *DecSingle:
-			trans(d.tp)
+			trans(d.Tp)
 			say(" ")
-			say(d.id)
+			say(d.Name)
 		default:
 			panic("impossilbe")
 		}
@@ -217,25 +217,25 @@ func CodegenCfg(p Program) {
 		switch t := tt.(type) {
 		case *Goto:
 			printSpeaces()
-			say("goto " + t.label.String() + ";\n")
+			say("goto " + t.Label_id.String() + ";\n")
 		case *If:
 			printSpeaces()
 			say("if (")
-			trans(t.cond)
+			trans(t.Cond)
 			say(")\n")
 			printSpeaces()
-			say("  goto " + t.truee.String() + ";\n")
+			say("  goto " + t.Truee.String() + ";\n")
 			printSpeaces()
 			say("else\n")
 			printSpeaces()
-			say("  goto " + t.falsee.String() + ";\n")
+			say("  goto " + t.Falsee.String() + ";\n")
 		case *Return:
 			printSpeaces()
 			//XXX this is for the gc
 			sayln("previous = frame.prev_;")
 			printSpeaces()
 			say("return ")
-			trans(t.op)
+			trans(t.Op)
 			say(";\n")
 		default:
 			panic("impossilbe")
@@ -246,12 +246,12 @@ func CodegenCfg(p Program) {
 		switch b := bb.(type) {
 		case *BlockSingle:
 			sayln("//block start")
-			say(b.label.String() + ":\n")
-			for _, s := range b.stms {
+			say(b.Label_id.String() + ":\n")
+			for _, s := range b.Stms {
 				trans(s)
 				say("\n")
 			}
-			trans(b.transfer)
+			trans(b.Trans)
 			sayln("//block en")
 		default:
 			panic("impossible")
@@ -261,16 +261,16 @@ func CodegenCfg(p Program) {
 	trans_Operand := func(oo Operand) {
 		switch o := oo.(type) {
 		case *Int:
-			say(strconv.Itoa(o.value))
+			say(strconv.Itoa(o.Value))
 		case *Var:
-			if o.isField == false {
-				if f_redec[o.id] == false {
-					say(o.id)
+			if o.IsField == false {
+				if f_redec[o.Name] == false {
+					say(o.Name)
 				} else {
-					say("frame." + o.id)
+					say("frame." + o.Name)
 				}
 			} else {
-				say("this->" + o.id)
+				say("this->" + o.Name)
 			}
 		default:
 			panic("impossible")
@@ -281,102 +281,102 @@ func CodegenCfg(p Program) {
 		switch s := ss.(type) {
 		case *Add:
 			printSpeaces()
-			say(getVar(s.dst) + " = ")
-			trans(s.left)
+			say(getVar(s.Dst) + " = ")
+			trans(s.Left)
 			say(" + ")
-			trans(s.right)
+			trans(s.Right)
 			sayln(";")
 		case *And:
 			printSpeaces()
-			say(getVar(s.dst) + " = ")
-			trans(s.left)
+			say(getVar(s.Dst) + " = ")
+			trans(s.Left)
 			say(" && ")
-			trans(s.right)
+			trans(s.Right)
 			sayln(";")
 		case *AssignArray:
 			printSpeaces()
-			if s.isField == false {
-				say(getVar(s.dst) + "[")
+			if s.IsField == false {
+				say(getVar(s.Dst) + "[")
 			} else {
-				say("this->" + s.dst + "[")
+				say("this->" + s.Dst + "[")
 			}
-			trans(s.index)
+			trans(s.Index)
 			say("+4]=")
-			trans(s.exp)
+			trans(s.E)
 			sayln(";")
 		case *ArraySelect:
 			printSpeaces()
-			say(s.id + " = ")
-			trans(s.array)
+			say(s.Name + " = ")
+			trans(s.Arrayref)
 			say("[")
-			trans(s.index)
+			trans(s.Index)
 			say("+4]")
 			sayln(";")
 		case *InvokeVirtual:
 			printSpeaces()
-			say(getVar(s.dst) + " = " + getVar(s.obj))
-			say("->vptr->" + s.f + "(" + getVar(s.obj))
-			for _, x := range s.args {
+			say(getVar(s.Dst) + " = " + getVar(s.Obj))
+			say("->vptr->" + s.F + "(" + getVar(s.Obj))
+			for _, x := range s.Args {
 				say(", ")
 				trans(x)
 			}
 			say(");")
 		case *Length:
 			printSpeaces()
-			say(getVar(s.dst) + " = ")
-			trans(s.array)
+			say(getVar(s.Dst) + " = ")
+			trans(s.Arrayref)
 			say("[2];\n")
 		case *Lt:
 			printSpeaces()
-			say(getVar(s.dst) + " = ")
-			trans(s.left)
+			say(getVar(s.Dst) + " = ")
+			trans(s.Left)
 			say(" < ")
-			trans(s.right)
+			trans(s.Right)
 			say(";")
 		case *Move:
 			printSpeaces()
 			if s.IsField == false {
-				say(getVar(s.dst) + " = ")
+				say(getVar(s.Dst) + " = ")
 			} else {
-				say("this->" + s.dst + " = ")
+				say("this->" + s.Dst + " = ")
 			}
-			trans(s.src)
+			trans(s.Src)
 			say(";")
 		case *NewIntArray:
 			printSpeaces()
-			say(getVar(s.dst) + " = (int*)Tiger_new_array(")
-			trans(s.exp)
+			say(getVar(s.Dst) + " = (int*)Tiger_new_array(")
+			trans(s.E)
 			sayln(");")
 		case *NewObject:
 			printSpeaces()
-			say(getVar(s.dst) +
-				" = ((struct " + s.c +
-				"*)(Tiger_new(&" + s.c +
-				"_vtable_, sizeof(struct " + s.c +
+			say(getVar(s.Dst) +
+				" = ((struct " + s.Class_name +
+				"*)(Tiger_new(&" + s.Class_name +
+				"_vtable_, sizeof(struct " + s.Class_name +
 				"))));")
 		case *Not:
 			printSpeaces()
-			say(getVar(s.dst) + " = !(")
-			trans(s.exp)
+			say(getVar(s.Dst) + " = !(")
+			trans(s.E)
 			sayln(");")
 		case *Print:
 			printSpeaces()
 			say("System_out_println(")
-			trans(s.arg)
+			trans(s.Args)
 			sayln(");")
 		case *Sub:
 			printSpeaces()
-			say(getVar(s.dst) + " = ")
-			trans(s.left)
+			say(getVar(s.Dst) + " = ")
+			trans(s.Left)
 			say(" - ")
-			trans(s.right)
+			trans(s.Right)
 			say(";")
 		case *Times:
 			printSpeaces()
-			say(getVar(s.dst) + " = ")
-			trans(s.left)
+			say(getVar(s.Dst) + " = ")
+			trans(s.Left)
 			say(" * ")
-			trans(s.right)
+			trans(s.Right)
 			say(";")
 		default:
 			fmt.Printf("%T\n", s)
@@ -387,11 +387,11 @@ func CodegenCfg(p Program) {
 	trans_Vtable := func(vv Vtable) {
 		switch v := vv.(type) {
 		case *VtableSingle:
-			sayln("struct " + v.id + "_vtable")
+			sayln("struct " + v.Name + "_vtable")
 			sayln("{")
 			printSpeaces()
-			sayln("char* " + v.id + "_gc_map;")
-			for _, f := range v.methods {
+			sayln("char* " + v.Name + "_gc_map;")
+			for _, f := range v.Methods {
 				say("  ")
 				trans(f.ret_type)
 				say(" (*" + f.id + ")(")
@@ -415,9 +415,9 @@ func CodegenCfg(p Program) {
 		switch m := mm.(type) {
 		case *MethodSingle:
 			f_redec = make(map[string]bool)
-			trans(m.ret_type)
-			say(" " + m.classId + "_" + m.name + "(")
-			for idx, dec := range m.formals {
+			trans(m.Ret_type)
+			say(" " + m.ClassId + "_" + m.Name + "(")
+			for idx, dec := range m.Formals {
 				if idx != 0 {
 					say(", ")
 				}
@@ -427,28 +427,28 @@ func CodegenCfg(p Program) {
 
 			sayln("{")
 			printSpeaces()
-			sayln("struct " + m.classId + "_" + m.name + "_gc_frame frame;")
+			sayln("struct " + m.ClassId + "_" + m.Name + "_gc_frame frame;")
 			printSpeaces()
 			sayln("frame.prev_ = previous;")
 			printSpeaces()
 			sayln("previous = &frame;")
 			printSpeaces()
-			sayln("frame.arguments_gc_map = " + m.classId + "_" + m.name + "_arguments_gc_map;")
+			sayln("frame.arguments_gc_map = " + m.ClassId + "_" + m.Name + "_arguments_gc_map;")
 			printSpeaces()
 			sayln("frame.arguments_base_address = (int*)&this;")
 			printSpeaces()
-			sayln("frame.locals_gc_map = " + m.classId + "_" + m.name + "_locals_gc_map;")
+			sayln("frame.locals_gc_map = " + m.ClassId + "_" + m.Name + "_locals_gc_map;")
 
-			for _, dec := range m.locals {
+			for _, dec := range m.Locals {
 				if d, ok := dec.(*DecSingle); ok {
-					t := d.tp.GetType()
+					t := d.Tp.GetType()
 					printSpeaces()
 					if t != TYPE_INTARRAY && t != TYPE_CLASSTYPE {
 						trans(dec)
 						sayln(";")
 					} else {
-						f_redec[d.id] = true
-						sayln("frame." + d.id + "=0;")
+						f_redec[d.Name] = true
+						sayln("frame." + d.Name + "=0;")
 					}
 				} else {
 					panic("impossible")
@@ -456,7 +456,7 @@ func CodegenCfg(p Program) {
 			}
 
 			sayln("")
-			for _, b := range m.blocks {
+			for _, b := range m.Blocks {
 				trans(b)
 			}
 			sayln("}")
@@ -486,22 +486,22 @@ func CodegenCfg(p Program) {
 			printSpeaces()
 			sayln("frame.locals_gc_map = Tiger_main_locals_gc_map;")
 
-			for _, dec := range m.locals {
+			for _, dec := range m.Locals {
 				if d, ok := dec.(*DecSingle); ok {
 					printSpeaces()
-					t := d.tp.GetType()
+					t := d.Tp.GetType()
 					if t != TYPE_INTARRAY && t != TYPE_CLASSTYPE {
 						trans(d)
 						sayln(";")
 					} else {
-						f_redec[d.id] = true
-						sayln("frame." + d.id + "=0;")
+						f_redec[d.Name] = true
+						sayln("frame." + d.Name + "=0;")
 					}
 				} else {
 					panic("impossible")
 				}
 			}
-			for _, b := range m.blocks {
+			for _, b := range m.Blocks {
 				trans(b)
 			}
 			sayln("\n}\n")
@@ -514,9 +514,9 @@ func CodegenCfg(p Program) {
 		switch c := cc.(type) {
 		case *ClassSingle:
 			locals := make([]*Tuple, 0)
-			sayln("struct " + c.id)
+			sayln("struct " + c.Name)
 			sayln("{")
-			sayln("  struct " + c.id + "_vtable *vptr;")
+			sayln("  struct " + c.Name + "_vtable *vptr;")
 
 			printSpeaces()
 			sayln("int isObjOrArray;")
@@ -525,7 +525,7 @@ func CodegenCfg(p Program) {
 			printSpeaces()
 			sayln("void *forwarding;")
 
-			for _, t := range c.decs {
+			for _, t := range c.Decs {
 				say("  ")
 				trans(t.tp)
 				say("  ")
@@ -533,7 +533,7 @@ func CodegenCfg(p Program) {
 				locals = append(locals, t)
 			}
 			//store all field info for generate v-table
-			f_class_dec[c.id] = locals
+			f_class_dec[c.Name] = locals
 			sayln("};")
 		default:
 			panic("impossible")
@@ -551,19 +551,19 @@ func CodegenCfg(p Program) {
 			sayln("extern int System_out_println(int);")
 
 			sayln("//structure")
-			for _, c := range p.classes {
+			for _, c := range p.Classes {
 				trans(c)
 			}
 			sayln("//vtable structures")
-			for _, v := range p.vtables {
+			for _, v := range p.Vtables {
 				trans(v)
 			}
 			sayln("\n//method decls")
-			for _, m := range p.methods {
+			for _, m := range p.Methods {
 				if mm, ok := m.(*MethodSingle); ok {
-					trans(mm.ret_type)
-					say(" " + mm.classId + "_" + mm.name + "(")
-					for idx, d := range mm.formals {
+					trans(mm.Ret_type)
+					say(" " + mm.ClassId + "_" + mm.Name + "(")
+					for idx, d := range mm.Formals {
 						if idx != 0 {
 							say(", ")
 						}
@@ -575,27 +575,27 @@ func CodegenCfg(p Program) {
 				}
 			}
 			sayln("//vtable")
-			for _, v := range p.vtables {
+			for _, v := range p.Vtables {
 				outputVtable(v)
 			}
 			sayln("")
 			sayln("//GC stack frames")
-			outputMainGcStack(p.main_method)
-			for _, method := range p.methods {
+			outputMainGcStack(p.Main_method)
+			for _, method := range p.Methods {
 				outputGcStack(method)
 			}
 			sayln("// memory GC maps")
 			sayln("int Tiger_main_locals_gc_map = 1;\n")
-			for _, m := range p.methods {
+			for _, m := range p.Methods {
 				outputGcMap(m)
 			}
 			sayln("// methods")
-			for _, m := range p.methods {
+			for _, m := range p.Methods {
 				trans(m)
 			}
 			sayln("")
 			sayln("// main")
-			trans(p.main_method)
+			trans(p.Main_method)
 			sayln("")
 			say("\n\n")
 		default:

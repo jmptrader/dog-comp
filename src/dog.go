@@ -4,6 +4,7 @@ import (
 	"./ast"
 	"./ast/optimization"
 	"./cfg"
+	"./cfg/optimization"
 	"./codegen/C"
 	"./control"
 	"./elaborator"
@@ -93,5 +94,7 @@ func main() {
 	}, control.VERBOSE_PASS)
 
 	cfg.Visualize(Ast_cfg)
+
+	cfg_opt.Liveness(Ast_cfg)
 
 }

@@ -117,10 +117,10 @@ func TransCfg(prog codegen_c.Program) Program {
 			var obj string
 			operand := f_operand
 			if v, ok := operand.(*Var); ok {
-				if v.isField == false {
-					obj = v.id
+				if v.IsField == false {
+					obj = v.Name
 				} else {
-					obj = "this->" + v.id
+					obj = "this->" + v.Name
 				}
 			} else {
 				panic("impossible")
@@ -156,8 +156,10 @@ func TransCfg(prog codegen_c.Program) Program {
 			f_operand = &Var{dst, false}
 		case *codegen_c.NewObject:
 			dst := genVarT(&ClassType{e.Class_name})
-			emit(&NewObject{"frame." + dst, e.Class_name})
-			f_operand = &Var{"frame." + dst, false}
+			//emit(&NewObject{"frame." + dst, e.Class_name})
+			//f_operand = &Var{"frame." + dst, false}
+			emit(&NewObject{dst, e.Class_name})
+			f_operand = &Var{dst, false}
 		case *codegen_c.Not:
 			dst := genVar()
 			trans(e.E)

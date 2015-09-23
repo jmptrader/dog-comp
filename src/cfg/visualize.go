@@ -20,17 +20,17 @@ func PP(e interface{}) string {
 	pp_Transfer := func(tt Transfer) {
 		switch t := tt.(type) {
 		case *Goto:
-			emit("goto " + t.label.String() + ";\n")
+			emit("goto " + t.Label_id.String() + ";\n")
 		case *If:
 			emit("if (")
-			pp(t.cond)
+			pp(t.Cond)
 			emit(")\n")
-			emit(" goto " + t.truee.String() + ";\n")
+			emit(" goto " + t.Truee.String() + ";\n")
 			emit("else\n")
-			emit(" goto " + t.falsee.String() + ";\n")
+			emit(" goto " + t.Falsee.String() + ";\n")
 		case *Return:
 			emit("return ")
-			pp(t.op)
+			pp(t.Op)
 		default:
 			panic("impossible")
 		}
@@ -39,12 +39,12 @@ func PP(e interface{}) string {
 	pp_Operand := func(oo Operand) {
 		switch o := oo.(type) {
 		case *Int:
-			emit(strconv.Itoa(o.value))
+			emit(strconv.Itoa(o.Value))
 		case *Var:
-			if o.isField == false {
-				emit(o.id)
+			if o.IsField == false {
+				emit(o.Name)
 			} else {
-				emit("this->" + o.id)
+				emit("this->" + o.Name)
 			}
 		default:
 			panic("impossible")
@@ -54,77 +54,77 @@ func PP(e interface{}) string {
 	pp_Stm := func(ss Stm) {
 		switch s := ss.(type) {
 		case *Add:
-			emit(s.dst + " = ")
-			pp(s.left)
+			emit(s.Dst + " = ")
+			pp(s.Left)
 			emit(" + ")
-			pp(s.right)
+			pp(s.Right)
 			emit(";")
 		case *And:
-			emit(s.dst + " = ")
-			pp(s.left)
+			emit(s.Dst + " = ")
+			pp(s.Left)
 			emit(" && ")
-			pp(s.right)
+			pp(s.Right)
 			emit(";")
 		case *ArraySelect:
-			emit(s.id + " = ")
-			pp(s.array)
+			emit(s.Name + " = ")
+			pp(s.Arrayref)
 			emit("[")
-			pp(s.index)
+			pp(s.Index)
 			emit("+4]")
 		case *AssignArray:
-			if s.isField == false {
-				emit(s.dst + "[")
+			if s.IsField == false {
+				emit(s.Dst + "[")
 			} else {
-				emit("this->" + s.dst + "[")
+				emit("this->" + s.Dst + "[")
 			}
-			pp(s.index)
+			pp(s.Index)
 		case *InvokeVirtual:
-			emit(s.dst + " = " + s.obj)
-			emit("->vptr->" + s.f + "(" + s.obj)
-			for _, x := range s.args {
+			emit(s.Dst + " = " + s.Obj)
+			emit("->vptr->" + s.F + "(" + s.Obj)
+			for _, x := range s.Args {
 				emit(", ")
 				pp(x)
 			}
 			emit(");")
 		case *Length:
-			emit(s.dst + " = ")
-			pp(s.array)
+			emit(s.Dst + " = ")
+			pp(s.Arrayref)
 			emit("[2]")
 		case *Lt:
-			emit(s.dst + " = ")
-			pp(s.left)
+			emit(s.Dst + " = ")
+			pp(s.Left)
 			emit(" < ")
-			pp(s.right)
+			pp(s.Right)
 			emit(";")
 		case *Move:
-			emit(s.dst + " = ")
-			pp(s.src)
+			emit(s.Dst + " = ")
+			pp(s.Src)
 			emit(";")
 		case *NewIntArray:
-			emit(s.dst + " = (int*)Tiger_new_array(")
-			pp(s.exp)
+			emit(s.Dst + " = (int*)Tiger_new_array(")
+			pp(s.E)
 			emit(")")
 		case *NewObject:
-			emit(s.dst + " =((struct " + s.c + "*)(Tiger_new(&" + s.c +
-				"_vtable_, sizeof(struct " + s.c + "))));")
+			emit(s.Dst + " =((struct " + s.Class_name + "*)(Tiger_new(&" + s.Class_name +
+				"_vtable_, sizeof(struct " + s.Class_name + "))));")
 		case *Not:
-			emit(s.dst + " = ")
-			pp(s.exp)
+			emit(s.Dst + " = ")
+			pp(s.E)
 		case *Print:
 			emit("system_out_println(")
-			pp(s.arg)
+			pp(s.Args)
 			emit(");")
 		case *Sub:
-			emit(s.dst + " = ")
-			pp(s.left)
+			emit(s.Dst + " = ")
+			pp(s.Left)
 			emit(" - ")
-			pp(s.right)
+			pp(s.Right)
 			emit(";")
 		case *Times:
-			emit(s.dst + " = ")
-			pp(s.left)
+			emit(s.Dst + " = ")
+			pp(s.Left)
 			emit(" * ")
-			pp(s.right)
+			pp(s.Right)
 		default:
 			panic("impossible")
 		}
@@ -133,12 +133,12 @@ func PP(e interface{}) string {
 	pp_Block := func(bb Block) {
 		switch b := bb.(type) {
 		case *BlockSingle:
-			buf.Write([]byte(b.label.String() + ":\\n"))
-			for _, s := range b.stms {
+			buf.Write([]byte(b.Label_id.String() + ":\\n"))
+			for _, s := range b.Stms {
 				pp(s)
 				emit("\n")
 			}
-			pp(b.transfer)
+			pp(b.Trans)
 		default:
 			panic("impossible")
 		}
@@ -174,7 +174,7 @@ func Visualize(p Program) {
 	vv_Block := func(bb Block) {
 		switch b := bb.(type) {
 		case *BlockSingle:
-			f_blocks[b.label] = b
+			f_blocks[b.Label_id] = b
 		default:
 			panic("impossible")
 		}
@@ -184,24 +184,24 @@ func Visualize(p Program) {
 		switch m := mm.(type) {
 		case *MethodSingle:
 			f_blocks = make(map[*util.Label]Block)
-			for _, b := range m.blocks {
+			for _, b := range m.Blocks {
 				vv(b)
 			}
 
-			gname := m.classId + "_" + m.name
+			gname := m.ClassId + "_" + m.Name
 			graph := util.Graph_new(gname)
 			graph.Node_String = PP
-			for _, b := range m.blocks {
+			for _, b := range m.Blocks {
 				graph.AddNode(b)
 			}
-			for _, b := range m.blocks {
+			for _, b := range m.Blocks {
 				if b_1, ok := b.(*BlockSingle); ok {
-					switch x := b_1.transfer.(type) {
+					switch x := b_1.Trans.(type) {
 					case *Goto:
-						graph.AddEdge(b, f_blocks[x.label])
+						graph.AddEdge(b, f_blocks[x.Label_id])
 					case *If:
-						graph.AddEdge(b, f_blocks[x.truee])
-						graph.AddEdge(b, f_blocks[x.falsee])
+						graph.AddEdge(b, f_blocks[x.Truee])
+						graph.AddEdge(b, f_blocks[x.Falsee])
 					case *Return:
 					default:
 						panic("impossible")
@@ -223,25 +223,25 @@ func Visualize(p Program) {
 		switch m := mm.(type) {
 		case *MainMethodSingle:
 			f_blocks = make(map[*util.Label]Block)
-			for _, b := range m.blocks {
+			for _, b := range m.Blocks {
 				vv(b)
 			}
 			gname := "Dog_main"
 			graph := util.Graph_new(gname)
 			graph.Node_String = PP
 
-			for _, b := range m.blocks {
+			for _, b := range m.Blocks {
 				graph.AddNode(b)
 			}
 
-			for _, b := range m.blocks {
+			for _, b := range m.Blocks {
 				if b_1, ok := b.(*BlockSingle); ok {
-					switch x := b_1.transfer.(type) {
+					switch x := b_1.Trans.(type) {
 					case *Goto:
-						graph.AddEdge(b, x.label)
+						graph.AddEdge(b, x.Label_id)
 					case *If:
-						graph.AddEdge(b, f_blocks[x.truee])
-						graph.AddEdge(b, f_blocks[x.falsee])
+						graph.AddEdge(b, f_blocks[x.Truee])
+						graph.AddEdge(b, f_blocks[x.Falsee])
 					case *Return:
 					default:
 						panic("impossible")
@@ -261,10 +261,10 @@ func Visualize(p Program) {
 	vv_Program := func(pp Program) {
 		switch p := pp.(type) {
 		case *ProgramSingle:
-			for _, m := range p.methods {
+			for _, m := range p.Methods {
 				vv(m)
 			}
-			vv(p.main_method)
+			vv(p.Main_method)
 		default:
 			panic("impossible")
 		}

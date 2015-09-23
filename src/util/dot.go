@@ -22,6 +22,11 @@ func (this *Dot) Insert(from, to string) {
 	this.list = append(this.list, this.DotElement_new(from, to, ""))
 }
 
+func (this *Dot) InsertOne(one string) {
+	s := Temp_next() + "[label=\"" + one + "\"]"
+	this.list = append(this.list, this.DotElement_new("", "", s))
+}
+
 func (this *Dot) String() string {
 	var buf bytes.Buffer
 	for _, e := range this.list {
@@ -89,6 +94,7 @@ func (this *Dot) Visualize(name string) {
 
 }
 
+//FIXME to dirty
 type DotElement struct {
 	X string
 	Y string
@@ -103,7 +109,8 @@ func (this *Dot) DotElement_new(x, y, z string) *DotElement {
 func (this *DotElement) String() string {
 	s := ""
 	if this.Z != "" {
-		s = this.Z
+		s = this.Z + ";\n"
+		return s
 	}
 	return "\"" + this.X + "\"" +
 		"->" +

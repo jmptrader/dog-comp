@@ -3,6 +3,7 @@ package cfg_opt
 import (
 	. "../../cfg"
 	"../../control"
+    "../../util"
 	"fmt"
 )
 
@@ -29,6 +30,9 @@ func Liveness(p Program) {
 	//block
 	var blockGen map[Block]map[string]bool
 	var blockKill map[Block]map[string]bool
+    var blockLiveIn map[Block]map[string]bool
+    var blockLiveOut map[Block]map[string]bool
+    var f_succ map[*util.Node]bool
 
 	stmGen = make(map[Stm]map[string]bool)
 	stmKill = make(map[Stm]map[string]bool)
@@ -36,6 +40,8 @@ func Liveness(p Program) {
 	transKill = make(map[Transfer]map[string]bool)
 	blockGen = make(map[Block]map[string]bool)
 	blockKill = make(map[Block]map[string]bool)
+    blockLiveIn = make(map[Block]map[string]bool)
+    blockLiveOut = make(map[Block]map[string]bool)
 
 	travers_GenKill := func(m map[string]bool) {
 		for x, _ := range m {
@@ -69,14 +75,16 @@ func Liveness(p Program) {
 			oneTransferKill[t.Cond.String()] = true
 		case *Goto:
 			//no need
-		case *Return:
-			oneTransferGen[t.Op.String()] = true
-		default:
-			panic("impossible")
-		}
-	}
+        case *Return:
+            if v, ok := t.Op.(*Var); ok{
+                oneTransferGen[v.String()] = true
+            }
+        default:
+            panic("impossible")
+        }
+    }
 
-	do_Stm := func(ss Stm) {
+    do_Stm := func(ss Stm) {
 		switch s := ss.(type) {
 		case *Add:
 			oneStmKill[s.Dst] = true
@@ -207,20 +215,97 @@ func Liveness(p Program) {
 		}
 	}
 
-	do_Block := func(bb Block) {
-		switch b := bb.(type) {
-		case *BlockSingle:
-			switch Liveness_Kind {
-			case StmGenKill:
-				do_calculateStmGenKill(b)
-			case BlockGenKill:
-				do_calculateBlockGenKill(b)
-			case BlockInOut:
-			case StmInOut:
-			default:
-				panic("impossible")
-			}
-		default:
+    do_calculateBlockInOut := func(b *BlockSingle)bool{
+        oneBlockGen := blockGen[b]
+        oneBlockKill := blockKill[b]
+        oneBlockIn := make(map[string]bool)
+        oneBlockOut := make(map[string]bool)
+        tempOut := make(map[string]bool)
+
+        var in_size int
+        var out_size int
+
+        if b := blockLiveIn[b]; b != nil{
+            in_size = len(b)
+        }else{
+            in_size = 0
+        }
+        if b := blockLiveOut[b]; b != nil{
+            out_size = len(b)
+        }else{
+            out_size = 0
+        }
+
+
+        //out[n] = U in[s] s belong to the n.cucc
+        for n , _ := range f_succ{
+            bb := n.GetData()
+            if b , ok := bb.(Block); ok {
+                if blockLiveIn[b] != nil{
+                    //addall
+                    for s , _ := range blockLiveIn[b]{
+                        oneBlockOut[s] = true
+                    }
+                }
+            }else{panic("impossible")}
+        }
+        blockLiveOut[b] = oneBlockOut
+        //in[n] = use[n] U (out[n]-def[n])
+
+        //out[n]-def[n]
+        for s, _ := range oneBlockOut{
+            tempOut[s] = true
+        }
+        for s , _ := range oneBlockKill{
+            delete(tempOut, s)
+        }
+        //use[n] U (out[n]-def[n])
+        for s , _ := range oneBlockGen{
+            oneBlockIn[s] = true
+        }
+        for s, _ := range tempOut{
+            oneBlockIn[s] = true
+        }
+        blockLiveIn[b] = oneBlockIn
+
+        if len(oneBlockOut)!=out_size || len(oneBlockIn)!=in_size{
+            return true
+        }else{
+            //trace
+            if control.Trace_contains("liveness.step3") {
+                fmt.Println(current_method + " " + b.Label_id.String())
+                fmt.Printf("  In: ")
+                travers_GenKill(oneBlockIn)
+                fmt.Printf("  Out: ")
+                travers_GenKill(oneBlockOut)
+                fmt.Println("")
+            }
+            return false
+        }
+
+    }
+
+    do_Block := func(bb Block) {
+        switch b := bb.(type) {
+        case *BlockSingle:
+            switch Liveness_Kind {
+            case StmGenKill:
+                do_calculateStmGenKill(b)
+            case BlockGenKill:
+                do_calculateBlockGenKill(b)
+            case BlockInOut:
+                changed := true
+                times := 1
+                for changed {
+                    changed = do_calculateBlockInOut(b)
+                    times++
+                    util.Assert(times<20, func(){panic("out of time")})
+                }
+            case StmInOut:
+            default:
+                panic("impossible")
+            }
+        default:
 			panic("impossible")
 		}
 	}
@@ -229,25 +314,54 @@ func Liveness(p Program) {
 		switch m := mm.(type) {
 		case *MethodSingle:
 			current_method = m.ClassId + "_" + m.Name
+            //step1
 			Liveness_Kind = StmGenKill
 			for _, b := range m.Blocks {
 				do(b)
 			}
+            //step2
 			Liveness_Kind = BlockGenKill
 			for _, b := range m.Blocks {
 				do(b)
 			}
-		default:
-			panic("impossible")
-		}
-	}
+            //setp3
+            Liveness_Kind = BlockInOut
+            graph := GenGraph(m)
+            retop_nodes := graph.Quasi_reverse()
+            //check
+            util.Assert(len(m.Blocks) == len(retop_nodes), func(){panic("assert fault")})
+            // check the quasi-top
+            /*
+            fmt.Println("\n"+ current_method)
+            for _, n := range retop_nodes{
+                b := n.GetData()
+                if v , ok := b.(*BlockSingle); ok{
+                    fmt.Println(v.Label_id.String())
+                }else{
+                    panic("impossible")
+                }
+            }
+            */
+            for _, node := range retop_nodes{
+                f_succ = node.GetSucc()
+                if b , ok := node.GetData().(Block); ok {
+                    do(b)
+                }else{
+                    panic("impossible")
+                }
+            }
 
-	do_MainMethod := func(mm MainMethod) {
-	}
+        default:
+            panic("impossible")
+        }
+    }
 
-	do_Program := func(pp Program) {
-		switch p := pp.(type) {
-		case *ProgramSingle:
+    do_MainMethod := func(mm MainMethod) {
+    }
+
+    do_Program := func(pp Program) {
+        switch p := pp.(type) {
+        case *ProgramSingle:
 			do(p.Main_method)
 			for _, m := range p.Methods {
 				do(m)

@@ -1,14 +1,14 @@
 package util
 
 import (
-    "os"
+	"os"
 )
 
-func Assert(cond bool, f func()){
-    if !cond{
-        if f != nil {
-            f()
-        }
-        os.Exit(1)
-    }
+func Assert(cond bool, f func()) {
+	if !cond {
+		if f != nil {
+			f()
+		}
+		os.Exit(1)
+	}
 }

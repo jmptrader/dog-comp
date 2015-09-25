@@ -3,9 +3,20 @@ package cfg_opt
 import (
 	. "../../cfg"
 	"../../control"
-    "../../util"
+	"../../util"
 	"fmt"
 )
+
+var stmGen map[Stm]map[string]bool
+var stmKill map[Stm]map[string]bool
+var transGen map[Transfer]map[string]bool
+var transKill map[Transfer]map[string]bool
+
+//setp4
+var stmLiveIn map[Stm]map[string]bool
+var stmLiveOut map[Stm]map[string]bool
+var transLiveIn map[Transfer]map[string]bool
+var transLiveOut map[Transfer]map[string]bool
 
 func Liveness(p Program) {
 	const (
@@ -18,21 +29,19 @@ func Liveness(p Program) {
 	var do func(Acceptable)
 
 	var current_method string
-	//stm
+	//setp1
 	var oneStmGen map[string]bool
 	var oneStmKill map[string]bool
 	var oneTransferGen map[string]bool
 	var oneTransferKill map[string]bool
-	var stmGen map[Stm]map[string]bool
-	var stmKill map[Stm]map[string]bool
-	var transGen map[Transfer]map[string]bool
-	var transKill map[Transfer]map[string]bool
-	//block
+	//setp2
 	var blockGen map[Block]map[string]bool
 	var blockKill map[Block]map[string]bool
-    var blockLiveIn map[Block]map[string]bool
-    var blockLiveOut map[Block]map[string]bool
-    var f_succ map[*util.Node]bool
+	//setp3
+	var blockLiveIn map[Block]map[string]bool
+	var blockLiveOut map[Block]map[string]bool
+
+	var f_succ map[*util.Node]bool
 
 	stmGen = make(map[Stm]map[string]bool)
 	stmKill = make(map[Stm]map[string]bool)
@@ -40,8 +49,12 @@ func Liveness(p Program) {
 	transKill = make(map[Transfer]map[string]bool)
 	blockGen = make(map[Block]map[string]bool)
 	blockKill = make(map[Block]map[string]bool)
-    blockLiveIn = make(map[Block]map[string]bool)
-    blockLiveOut = make(map[Block]map[string]bool)
+	blockLiveIn = make(map[Block]map[string]bool)
+	blockLiveOut = make(map[Block]map[string]bool)
+	stmLiveIn = make(map[Stm]map[string]bool)
+	stmLiveOut = make(map[Stm]map[string]bool)
+	transLiveIn = make(map[Transfer]map[string]bool)
+	transLiveOut = make(map[Transfer]map[string]bool)
 
 	travers_GenKill := func(m map[string]bool) {
 		for x, _ := range m {
@@ -72,19 +85,19 @@ func Liveness(p Program) {
 	do_Transfer := func(tt Transfer) {
 		switch t := tt.(type) {
 		case *If:
-			oneTransferKill[t.Cond.String()] = true
+			oneTransferGen[t.Cond.String()] = true
 		case *Goto:
 			//no need
-        case *Return:
-            if v, ok := t.Op.(*Var); ok{
-                oneTransferGen[v.String()] = true
-            }
-        default:
-            panic("impossible")
-        }
-    }
+		case *Return:
+			if v, ok := t.Op.(*Var); ok {
+				oneTransferGen[v.String()] = true
+			}
+		default:
+			panic("impossible")
+		}
+	}
 
-    do_Stm := func(ss Stm) {
+	do_Stm := func(ss Stm) {
 		switch s := ss.(type) {
 		case *Add:
 			oneStmKill[s.Dst] = true
@@ -215,97 +228,174 @@ func Liveness(p Program) {
 		}
 	}
 
-    do_calculateBlockInOut := func(b *BlockSingle)bool{
-        oneBlockGen := blockGen[b]
-        oneBlockKill := blockKill[b]
-        oneBlockIn := make(map[string]bool)
-        oneBlockOut := make(map[string]bool)
-        tempOut := make(map[string]bool)
+	do_calculateBlockInOut := func(b *BlockSingle) bool {
+		oneBlockGen := blockGen[b]
+		oneBlockKill := blockKill[b]
+		oneBlockIn := make(map[string]bool)
+		oneBlockOut := make(map[string]bool)
+		tempOut := make(map[string]bool)
 
-        var in_size int
-        var out_size int
+		var in_size int
+		var out_size int
 
-        if b := blockLiveIn[b]; b != nil{
-            in_size = len(b)
-        }else{
-            in_size = 0
-        }
-        if b := blockLiveOut[b]; b != nil{
-            out_size = len(b)
-        }else{
-            out_size = 0
-        }
+		if b := blockLiveIn[b]; b != nil {
+			in_size = len(b)
+		} else {
+			in_size = 0
+		}
+		if b := blockLiveOut[b]; b != nil {
+			out_size = len(b)
+		} else {
+			out_size = 0
+		}
 
+		//out[n] = U in[s] s belong to the n.cucc
+		for n, _ := range f_succ {
+			bb := n.GetData()
+			if b, ok := bb.(Block); ok {
+				if blockLiveIn[b] != nil {
+					//addall
+					for s, _ := range blockLiveIn[b] {
+						oneBlockOut[s] = true
+					}
+				}
+			} else {
+				panic("impossible")
+			}
+		}
+		blockLiveOut[b] = oneBlockOut
+		//in[n] = use[n] U (out[n]-def[n])
 
-        //out[n] = U in[s] s belong to the n.cucc
-        for n , _ := range f_succ{
-            bb := n.GetData()
-            if b , ok := bb.(Block); ok {
-                if blockLiveIn[b] != nil{
-                    //addall
-                    for s , _ := range blockLiveIn[b]{
-                        oneBlockOut[s] = true
-                    }
-                }
-            }else{panic("impossible")}
-        }
-        blockLiveOut[b] = oneBlockOut
-        //in[n] = use[n] U (out[n]-def[n])
+		//out[n]-def[n]
+		for s, _ := range oneBlockOut {
+			tempOut[s] = true
+		}
+		for s, _ := range oneBlockKill {
+			delete(tempOut, s)
+		}
+		//use[n] U (out[n]-def[n])
+		for s, _ := range oneBlockGen {
+			oneBlockIn[s] = true
+		}
+		for s, _ := range tempOut {
+			oneBlockIn[s] = true
+		}
+		blockLiveIn[b] = oneBlockIn
 
-        //out[n]-def[n]
-        for s, _ := range oneBlockOut{
-            tempOut[s] = true
-        }
-        for s , _ := range oneBlockKill{
-            delete(tempOut, s)
-        }
-        //use[n] U (out[n]-def[n])
-        for s , _ := range oneBlockGen{
-            oneBlockIn[s] = true
-        }
-        for s, _ := range tempOut{
-            oneBlockIn[s] = true
-        }
-        blockLiveIn[b] = oneBlockIn
+		if len(oneBlockOut) != out_size || len(oneBlockIn) != in_size {
+			return true
+		} else {
+			//trace
+			if control.Trace_contains("liveness.step3") {
+				fmt.Println(current_method + " " + b.Label_id.String())
+				fmt.Printf("  In: ")
+				travers_GenKill(oneBlockIn)
+				fmt.Printf("  Out: ")
+				travers_GenKill(oneBlockOut)
+				fmt.Println("")
+			}
+			return false
+		}
 
-        if len(oneBlockOut)!=out_size || len(oneBlockIn)!=in_size{
-            return true
-        }else{
-            //trace
-            if control.Trace_contains("liveness.step3") {
-                fmt.Println(current_method + " " + b.Label_id.String())
-                fmt.Printf("  In: ")
-                travers_GenKill(oneBlockIn)
-                fmt.Printf("  Out: ")
-                travers_GenKill(oneBlockOut)
-                fmt.Println("")
-            }
-            return false
-        }
+	}
 
-    }
+	do_calculateStmInOut := func(b *BlockSingle) {
+		if control.Trace_contains("liveness.step4") {
+			fmt.Println(current_method + " " + b.Label_id.String())
+		}
+		//transfer in out
+		oneTransferGen = transGen[b.Trans]
+		oneTransferKill = transKill[b.Trans]
+		oneTransferOut := make(map[string]bool)
+		oneTransferIn := make(map[string]bool)
+		for s, _ := range blockLiveOut[b] {
+			oneTransferOut[s] = true
+		}
+		transLiveOut[b.Trans] = oneTransferOut
+		//in[n] = use[n] U (out[n] - def[n])
+		for s, _ := range oneTransferOut {
+			oneTransferIn[s] = true
+		}
+		for s, _ := range oneTransferKill {
+			delete(oneTransferIn, s)
+		}
+		for s, _ := range oneTransferGen {
+			oneTransferIn[s] = true
+		}
+		transLiveIn[b.Trans] = oneTransferIn
+		if control.Trace_contains("liveness.step4") {
+			fmt.Printf("  ")
+			fmt.Println(b.Trans)
+			fmt.Printf("    In: ")
+			travers_GenKill(oneTransferIn)
+			fmt.Printf("    Out: ")
+			travers_GenKill(oneTransferOut)
+			fmt.Println("")
+		}
 
-    do_Block := func(bb Block) {
-        switch b := bb.(type) {
-        case *BlockSingle:
-            switch Liveness_Kind {
-            case StmGenKill:
-                do_calculateStmGenKill(b)
-            case BlockGenKill:
-                do_calculateBlockGenKill(b)
-            case BlockInOut:
-                changed := true
-                times := 1
-                for changed {
-                    changed = do_calculateBlockInOut(b)
-                    times++
-                    util.Assert(times<20, func(){panic("out of time")})
-                }
-            case StmInOut:
-            default:
-                panic("impossible")
-            }
-        default:
+		//Stm in out
+		prevIn := make(map[string]bool)
+		//prevOut := make(map[string]bool)
+		prevIn = oneTransferIn
+		//prevOut = oneTransferOut
+		for i := len(b.Stms) - 1; i >= 0; i-- {
+			oneStmIn := make(map[string]bool)
+			oneStmOut := make(map[string]bool)
+			oneStmGen = stmGen[b.Stms[i]]
+			oneStmKill = stmKill[b.Stms[i]]
+			//out
+			for s, _ := range prevIn {
+				oneStmOut[s] = true
+			}
+			stmLiveOut[b.Stms[i]] = oneStmOut
+			//in
+			for s, _ := range oneStmOut {
+				oneStmIn[s] = true
+			}
+			for s, _ := range oneStmKill {
+				delete(oneStmIn, s)
+			}
+			for s, _ := range oneStmGen {
+				oneStmIn[s] = true
+			}
+			stmLiveIn[b.Stms[i]] = oneStmIn
+			prevIn = oneStmIn
+			// prevOut = oneStmOut
+			if control.Trace_contains("liveness.step4") {
+				fmt.Printf("  ")
+				fmt.Println(b.Stms[i])
+				fmt.Printf("    In: ")
+				travers_GenKill(oneStmIn)
+				fmt.Printf("    Out: ")
+				travers_GenKill(oneStmOut)
+				fmt.Println("")
+			}
+
+		}
+	}
+
+	do_Block := func(bb Block) {
+		switch b := bb.(type) {
+		case *BlockSingle:
+			switch Liveness_Kind {
+			case StmGenKill:
+				do_calculateStmGenKill(b)
+			case BlockGenKill:
+				do_calculateBlockGenKill(b)
+			case BlockInOut:
+				changed := true
+				times := 1
+				for changed {
+					changed = do_calculateBlockInOut(b)
+					times++
+					util.Assert(times < 20, func() { panic("out of time") })
+				}
+			case StmInOut:
+				do_calculateStmInOut(b)
+			default:
+				panic("impossible")
+			}
+		default:
 			panic("impossible")
 		}
 	}
@@ -314,54 +404,60 @@ func Liveness(p Program) {
 		switch m := mm.(type) {
 		case *MethodSingle:
 			current_method = m.ClassId + "_" + m.Name
-            //step1
+			//step1
 			Liveness_Kind = StmGenKill
 			for _, b := range m.Blocks {
 				do(b)
 			}
-            //step2
+			//step2
 			Liveness_Kind = BlockGenKill
 			for _, b := range m.Blocks {
 				do(b)
 			}
-            //setp3
-            Liveness_Kind = BlockInOut
-            graph := GenGraph(m)
-            retop_nodes := graph.Quasi_reverse()
-            //check
-            util.Assert(len(m.Blocks) == len(retop_nodes), func(){panic("assert fault")})
-            // check the quasi-top
-            /*
-            fmt.Println("\n"+ current_method)
-            for _, n := range retop_nodes{
-                b := n.GetData()
-                if v , ok := b.(*BlockSingle); ok{
-                    fmt.Println(v.Label_id.String())
-                }else{
-                    panic("impossible")
-                }
-            }
-            */
-            for _, node := range retop_nodes{
-                f_succ = node.GetSucc()
-                if b , ok := node.GetData().(Block); ok {
-                    do(b)
-                }else{
-                    panic("impossible")
-                }
-            }
+			//setp3
+			Liveness_Kind = BlockInOut
+			graph := GenGraph(m)
+			retop_nodes := graph.Quasi_reverse()
+			//check
+			util.Assert(len(m.Blocks) == len(retop_nodes), func() { panic("assert fault") })
+			// check the quasi-top
+			/*
+			   fmt.Println("\n"+ current_method)
+			   for _, n := range retop_nodes{
+			       b := n.GetData()
+			       if v , ok := b.(*BlockSingle); ok{
+			           fmt.Println(v.Label_id.String())
+			       }else{
+			           panic("impossible")
+			       }
+			   }
+			*/
+			for _, node := range retop_nodes {
+				f_succ = node.GetSucc()
+				if b, ok := node.GetData().(Block); ok {
+					do(b)
+				} else {
+					panic("impossible")
+				}
+			}
 
-        default:
-            panic("impossible")
-        }
-    }
+			//step4
+			Liveness_Kind = StmInOut
+			for _, b := range m.Blocks {
+				do_Block(b)
+			}
 
-    do_MainMethod := func(mm MainMethod) {
-    }
+		default:
+			panic("impossible")
+		}
+	}
 
-    do_Program := func(pp Program) {
-        switch p := pp.(type) {
-        case *ProgramSingle:
+	do_MainMethod := func(mm MainMethod) {
+	}
+
+	do_Program := func(pp Program) {
+		switch p := pp.(type) {
+		case *ProgramSingle:
 			do(p.Main_method)
 			for _, m := range p.Methods {
 				do(m)

@@ -76,30 +76,29 @@ func main() {
 		}
 	}, control.VERBOSE_PASS)
 	//step4: codegen
-	/*
+	if control.Optimization_Level <= 1 {
 		control.Verbose("CodeGen", func() {
 			codegen_c.CodegenC(Ast_c)
 		}, control.VERBOSE_PASS)
-	*/
+	} else {
 
-	//Ast_c -> Ast_cfg
-	var Ast_cfg cfg.Program
-	control.Verbose("TransCfg", func() {
-		Ast_cfg = cfg.TransCfg(Ast_c)
-	}, control.VERBOSE_PASS)
+		//setp5:optimization
+		//Ast_c -> Ast_cfg
+		var Ast_cfg cfg.Program
+		control.Verbose("TransCfg", func() {
+			Ast_cfg = cfg.TransCfg(Ast_c)
+		}, control.VERBOSE_PASS)
+		if control.Visualize_format != control.None {
+			cfg.Visualize(Ast_cfg)
+		}
+		Ast_cfg = cfg_opt.Opt(Ast_cfg)
+		util.Assert(Ast_cfg != nil, func() { panic("impossible") })
 
-	//CodegenCfg
-	control.Verbose("GenCfg", func() {
-		cfg.CodegenCfg(Ast_cfg)
-	}, control.VERBOSE_PASS)
+		//CodegenCfg
+		control.Verbose("GenCfg", func() {
+			cfg.CodegenCfg(Ast_cfg)
+		}, control.VERBOSE_PASS)
 
-	if control.Visualize_format != control.None {
-		cfg.Visualize(Ast_cfg)
 	}
-
-	Ast_cfg = cfg_opt.Opt(Ast_cfg)
-	util.Assert(Ast_cfg != nil, func() { panic("impossible") })
-	cfg.CodegenCfg(Ast_cfg)
-	//cfg_opt.Liveness(Ast_cfg)
 
 }

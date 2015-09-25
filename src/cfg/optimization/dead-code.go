@@ -34,7 +34,8 @@ func DeadCode(prog Program) Program {
 				f_stm = s
 			}
 		case *InvokeVirtual:
-			elim(s.Dst)
+			//XXX invoke method may generate side-effect
+			f_stm = s
 		case *Length:
 			elim(s.Dst)
 		case *Lt:

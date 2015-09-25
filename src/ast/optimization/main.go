@@ -6,6 +6,9 @@ import (
 )
 
 func Opt(prog ast.Program) ast.Program {
+	if control.Optimization_Level < 1 {
+		return prog
+	}
 	Ast := prog
 	before_opt := Statistics_Ast(Ast)
 	if !control.Trace_skipPass("deadclass") {

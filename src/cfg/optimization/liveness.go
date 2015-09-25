@@ -417,15 +417,15 @@ func Liveness(p Program) {
 			util.Assert(len(m.Blocks) == len(retop_nodes), func() { panic("assert fault") })
 			// check the quasi-top
 			/*
-						   fmt.Println("\n"+ current_method)
-			               for _, n := range retop_nodes{
-			                   b := n.GetData()
-			                   if v , ok := b.(*BlockSingle); ok{
-			                       fmt.Println(v.Label_id.String())
-			                   }else{
-			                       panic("impossible")
-			                   }
-			               }
+							   fmt.Println("\n"+ current_method)
+				               for _, n := range retop_nodes{
+				                   b := n.GetData()
+				                   if v , ok := b.(*BlockSingle); ok{
+				                       fmt.Println(v.Label_id.String())
+				                   }else{
+				                       panic("impossible")
+				                   }
+				               }
 			*/
 			times := 0
 			changed = true

@@ -34,3 +34,5 @@ const (
 )
 
 var Visualize_format int = None
+
+var Optimization_Level int = 6

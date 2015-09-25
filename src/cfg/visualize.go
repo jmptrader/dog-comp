@@ -288,7 +288,7 @@ func Visualize(p Program) {
 		case Type:
 		case Vtable:
 		default:
-            fmt.Printf("%T\n", v)
+			fmt.Printf("%T\n", v)
 			panic("impossible")
 		}
 	}

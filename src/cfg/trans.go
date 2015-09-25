@@ -6,7 +6,7 @@ import (
 )
 
 func TransCfg(prog codegen_c.Program) Program {
-    //Every method shoud refresh addtional_locals
+	//Every method shoud refresh addtional_locals
 	var f_additional_locals []Dec
 	var f_stm_transfer []interface{}
 	var f_operand Operand
@@ -202,7 +202,7 @@ func TransCfg(prog codegen_c.Program) Program {
 			index := f_operand
 			trans(s.E)
 			exp := f_operand
-            //AssignArray's dst must be frame.dst, no need tp
+			//AssignArray's dst must be frame.dst, no need tp
 			emit(&AssignArray{s.Name, index, exp, s.IsField})
 		case *codegen_c.Block:
 			for _, t := range s.Stms {

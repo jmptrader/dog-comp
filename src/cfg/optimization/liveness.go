@@ -27,6 +27,8 @@ func Liveness(p Program) {
 	)
 	var Liveness_Kind int
 	var do func(Acceptable)
+	//for step3 fix-point
+	var changed bool
 
 	var current_method string
 	//setp1
@@ -228,12 +230,20 @@ func Liveness(p Program) {
 		}
 	}
 
+	//XXX important
 	do_calculateBlockInOut := func(b *BlockSingle) bool {
 		oneBlockGen := blockGen[b]
 		oneBlockKill := blockKill[b]
 		oneBlockIn := make(map[string]bool)
 		oneBlockOut := make(map[string]bool)
 		tempOut := make(map[string]bool)
+
+		if in := blockLiveIn[b]; in != nil {
+			oneBlockIn = in
+		}
+		if out := blockLiveOut[b]; out != nil {
+			oneBlockOut = out
+		}
 
 		var in_size int
 		var out_size int
@@ -285,15 +295,6 @@ func Liveness(p Program) {
 		if len(oneBlockOut) != out_size || len(oneBlockIn) != in_size {
 			return true
 		} else {
-			//trace
-			if control.Trace_contains("liveness.step3") {
-				fmt.Println(current_method + " " + b.Label_id.String())
-				fmt.Printf("  In: ")
-				travers_GenKill(oneBlockIn)
-				fmt.Printf("  Out: ")
-				travers_GenKill(oneBlockOut)
-				fmt.Println("")
-			}
 			return false
 		}
 
@@ -383,13 +384,7 @@ func Liveness(p Program) {
 			case BlockGenKill:
 				do_calculateBlockGenKill(b)
 			case BlockInOut:
-				changed := true
-				times := 1
-				for changed {
-					changed = do_calculateBlockInOut(b)
-					times++
-					util.Assert(times < 20, func() { panic("out of time") })
-				}
+				changed = changed || do_calculateBlockInOut(b)
 			case StmInOut:
 				do_calculateStmInOut(b)
 			default:
@@ -422,22 +417,42 @@ func Liveness(p Program) {
 			util.Assert(len(m.Blocks) == len(retop_nodes), func() { panic("assert fault") })
 			// check the quasi-top
 			/*
-			   fmt.Println("\n"+ current_method)
-			   for _, n := range retop_nodes{
-			       b := n.GetData()
-			       if v , ok := b.(*BlockSingle); ok{
-			           fmt.Println(v.Label_id.String())
-			       }else{
-			           panic("impossible")
-			       }
-			   }
+						   fmt.Println("\n"+ current_method)
+			               for _, n := range retop_nodes{
+			                   b := n.GetData()
+			                   if v , ok := b.(*BlockSingle); ok{
+			                       fmt.Println(v.Label_id.String())
+			                   }else{
+			                       panic("impossible")
+			                   }
+			               }
 			*/
-			for _, node := range retop_nodes {
-				f_succ = node.GetSucc()
-				if b, ok := node.GetData().(Block); ok {
-					do(b)
-				} else {
-					panic("impossible")
+			times := 0
+			changed = true
+			for changed {
+				times++
+				changed = false
+				for _, node := range retop_nodes {
+					f_succ = node.GetSucc()
+					if b, ok := node.GetData().(Block); ok {
+						do(b)
+					} else {
+						panic("impossible")
+					}
+				}
+			}
+			//trace
+			if control.Trace_contains("liveness.step3") {
+				fmt.Printf("%d times reach pix-piont\n", times)
+				for _, bb := range m.Blocks {
+					if b, ok := bb.(*BlockSingle); ok {
+						fmt.Println(current_method + " " + b.Label_id.String())
+						fmt.Printf("  In: ")
+						travers_GenKill(blockLiveIn[b])
+						fmt.Printf("  Out: ")
+						travers_GenKill(blockLiveOut[b])
+						fmt.Println("")
+					}
 				}
 			}
 

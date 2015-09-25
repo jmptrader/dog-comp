@@ -93,11 +93,13 @@ func main() {
 		cfg.CodegenCfg(Ast_cfg)
 	}, control.VERBOSE_PASS)
 
-	cfg.Visualize(Ast_cfg)
+	if control.Visualize_format != control.None {
+		cfg.Visualize(Ast_cfg)
+	}
 
-    Ast_cfg = cfg_opt.Opt(Ast_cfg)
-    util.Assert(Ast_cfg!=nil, func(){panic("impossible")})
-    cfg.CodegenCfg(Ast_cfg)
+	Ast_cfg = cfg_opt.Opt(Ast_cfg)
+	util.Assert(Ast_cfg != nil, func() { panic("impossible") })
+	cfg.CodegenCfg(Ast_cfg)
 	//cfg_opt.Liveness(Ast_cfg)
 
 }

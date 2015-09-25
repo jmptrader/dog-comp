@@ -1,19 +1,18 @@
 package cfg_opt
 
 import (
-    . "../../cfg"
-    "../../util"
+	. "../../cfg"
+	"../../util"
 )
 
-func Opt(prog Program)Program{
-    Ast := prog
+func Opt(prog Program) Program {
+	Ast := prog
 
-    Liveness(prog)
+	Liveness(prog)
 
-    Ast = DeadCode(prog)
+	Ast = DeadCode(prog)
 
-    util.Assert(Ast != nil, func(){panic("impossible")})
+	util.Assert(Ast != nil, func() { panic("impossible") })
 
-    return Ast
+	return Ast
 }
-

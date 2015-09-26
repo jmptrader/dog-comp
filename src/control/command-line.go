@@ -25,12 +25,12 @@ const (
 )
 
 const (
-	VERSION = "dog v0.1.0 linux/386"
+	VERSION = "dog v0.2.0 linux/386"
 	WEBSITE = "https://github.com/qc1iu/dog-comp"
 )
 
 /**
- * All args. Initialized int Do_arg() by args_init()
+* All args. Initialized int Do_arg() by args_init()
  */
 var all_Arg []Arg
 
@@ -211,6 +211,18 @@ func args_init() {
 					panic("impossible")
 				}
 			}},
+		{"opt",
+			"{0~6}",
+			"optimization level",
+			INT,
+			func(c interface{}) {
+				if i, ok := c.(int); ok {
+					if i < 0 {
+						argException("-O {0~6}")
+					}
+					Optimization_Level = i
+				}
+			}},
 		{"help",
 			"",
 			"show this help information",
@@ -225,8 +237,8 @@ func args_init() {
 func Do_arg(args []string) string {
 	args_init()
 	filename := ""
-	found := false
 	for i := 0; i < len(args); i++ {
+		found := false
 		if !strings.HasPrefix(args[i], "-") {
 			if filename == "" {
 				filename = args[i]

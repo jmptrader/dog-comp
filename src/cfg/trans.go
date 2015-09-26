@@ -6,6 +6,7 @@ import (
 )
 
 func TransCfg(prog codegen_c.Program) Program {
+	//Every method shoud refresh addtional_locals
 	var f_additional_locals []Dec
 	var f_stm_transfer []interface{}
 	var f_operand Operand
@@ -117,10 +118,10 @@ func TransCfg(prog codegen_c.Program) Program {
 			var obj string
 			operand := f_operand
 			if v, ok := operand.(*Var); ok {
-				if v.isField == false {
-					obj = v.id
+				if v.IsField == false {
+					obj = v.Name
 				} else {
-					obj = "this->" + v.id
+					obj = "this->" + v.Name
 				}
 			} else {
 				panic("impossible")
@@ -156,8 +157,10 @@ func TransCfg(prog codegen_c.Program) Program {
 			f_operand = &Var{dst, false}
 		case *codegen_c.NewObject:
 			dst := genVarT(&ClassType{e.Class_name})
-			emit(&NewObject{"frame." + dst, e.Class_name})
-			f_operand = &Var{"frame." + dst, false}
+			//emit(&NewObject{"frame." + dst, e.Class_name})
+			//f_operand = &Var{"frame." + dst, false}
+			emit(&NewObject{dst, e.Class_name})
+			f_operand = &Var{dst, false}
 		case *codegen_c.Not:
 			dst := genVar()
 			trans(e.E)
@@ -193,12 +196,13 @@ func TransCfg(prog codegen_c.Program) Program {
 		switch s := ss.(type) {
 		case *codegen_c.Assign:
 			trans(s.E)
-			emit(&Move{s.Name, nil, f_operand, s.IsField})
+			emit(&Move{s.Name, f_tp, f_operand, s.IsField})
 		case *codegen_c.AssignArray:
 			trans(s.Index)
 			index := f_operand
 			trans(s.E)
 			exp := f_operand
+			//AssignArray's dst must be frame.dst, no need tp
 			emit(&AssignArray{s.Name, index, exp, s.IsField})
 		case *codegen_c.Block:
 			for _, t := range s.Stms {
@@ -273,7 +277,7 @@ func TransCfg(prog codegen_c.Program) Program {
 				trans(d)
 				new_locals = append(new_locals, f_dec)
 			}
-			//XXX a junk label before the fiest block
+			//XXX a junk label before the first block
 			entry := util.Label_new()
 			emit(entry)
 			for _, s := range m.Stms {

@@ -7,18 +7,17 @@ import (
 	"fmt"
 )
 
-var stmGen map[Stm]map[string]bool
-var stmKill map[Stm]map[string]bool
-var transGen map[Transfer]map[string]bool
-var transKill map[Transfer]map[string]bool
-
-//setp4
+//setp4 for dead-code elimination
 var stmLiveIn map[Stm]map[string]bool
 var stmLiveOut map[Stm]map[string]bool
-var transLiveIn map[Transfer]map[string]bool
-var transLiveOut map[Transfer]map[string]bool
 
 func Liveness(p Program) {
+	var stmGen map[Stm]map[string]bool
+	var stmKill map[Stm]map[string]bool
+	var transGen map[Transfer]map[string]bool
+	var transKill map[Transfer]map[string]bool
+	var transLiveIn map[Transfer]map[string]bool
+	var transLiveOut map[Transfer]map[string]bool
 	const (
 		StmGenKill = iota
 		BlockGenKill
@@ -248,13 +247,13 @@ func Liveness(p Program) {
 		var in_size int
 		var out_size int
 
-		if b := blockLiveIn[b]; b != nil {
-			in_size = len(b)
+		if x := blockLiveIn[b]; x != nil {
+			in_size = len(x)
 		} else {
 			in_size = 0
 		}
-		if b := blockLiveOut[b]; b != nil {
-			out_size = len(b)
+		if x := blockLiveOut[b]; x != nil {
+			out_size = len(x)
 		} else {
 			out_size = 0
 		}
@@ -417,15 +416,15 @@ func Liveness(p Program) {
 			util.Assert(len(m.Blocks) == len(retop_nodes), func() { panic("assert fault") })
 			// check the quasi-top
 			/*
-							   fmt.Println("\n"+ current_method)
-				               for _, n := range retop_nodes{
-				                   b := n.GetData()
-				                   if v , ok := b.(*BlockSingle); ok{
-				                       fmt.Println(v.Label_id.String())
-				                   }else{
-				                       panic("impossible")
-				                   }
-				               }
+			   fmt.Println("\n"+ current_method)
+			   for _, n := range retop_nodes{
+			       b := n.GetData()
+			       if v , ok := b.(*BlockSingle); ok{
+			           fmt.Println(v.Label_id.String())
+			       }else{
+			           panic("impossible")
+			       }
+			   }
 			*/
 			times := 0
 			changed = true

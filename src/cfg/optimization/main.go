@@ -29,6 +29,7 @@ func Opt(prog Program) Program {
 	util.Assert(Ast != nil, func() { panic("impossible") })
 
 	//TODO
+	Ast = ReachingDef(Ast)
 
 	return Ast
 }

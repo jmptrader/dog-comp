@@ -31,14 +31,20 @@ func (this *DeadCode) opt_Exp(exp ast.Exp) {
 		this.is_bool = false
 	case *ast.And:
 		this.opt(e.Left)
+		left_isBool := this.is_bool
 		left := this.is_true
 		this.opt(e.Right)
+		right_isBool := this.is_bool
 		right := this.is_true
-		this.is_bool = true
-		if left && right {
-			this.is_true = true
+		if left_isBool && right_isBool {
+			this.is_bool = true
+			if left && right {
+				this.is_true = true
+			} else {
+				this.is_true = false
+			}
 		} else {
-			this.is_true = false
+			this.is_bool = false
 		}
 	case *ast.ArraySelect:
 		this.is_bool = false

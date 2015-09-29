@@ -6,6 +6,10 @@ type Graph struct {
 	Node_String func(interface{}) string //print Node
 }
 
+func (this *Graph) GetNodes() []*Node {
+	return this.nodes
+}
+
 type Node struct {
 	data        interface{}
 	edges       []*Edge
@@ -29,6 +33,9 @@ func (this *Graph) Node_new(data interface{}) *Node {
 }
 func (this *Node) GetSucc() map[*Node]bool {
 	return this.succ
+}
+func (this *Node) GetPrev() map[*Node]bool {
+	return this.prev
 }
 func (this *Node) String() string {
 	if this.Node_String != nil {

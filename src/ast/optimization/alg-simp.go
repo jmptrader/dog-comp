@@ -117,14 +117,14 @@ func AlgSimp(prog ast.Program) ast.Program {
 			var right_0 bool
 			is_0 = false
 			opt(e.Left)
-			left := exp
+			//left := exp
 			if is_0 {
 				left_0 = true
 			} else {
 				left_0 = false
 			}
 			opt(e.Right)
-			right := exp
+			//right := exp
 			if is_0 {
 				right_0 = true
 			} else {
@@ -132,10 +132,13 @@ func AlgSimp(prog ast.Program) ast.Program {
 			}
 			if left_0 && right_0 {
 				exp = ast.Num_new(0, e.LineNum)
-			} else if right_0 {
-				exp = left
-			} else if left_0 {
-				exp = right
+				/*XXX sub can't opt right
+				                //XXX issue #11
+							} else if right_0 {
+								exp = left
+							} else if left_0 {
+								exp = right
+				*/
 			} else {
 				exp = e
 			}

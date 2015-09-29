@@ -22,6 +22,7 @@ func Opt(prog ast.Program) ast.Program {
 			})
 		}, control.VERBOSE_SUBPASS)
 	}
+
 	if !control.Trace_skipPass("deadcode") {
 		control.Verbose("DeadCode-Opt", func() {
 			control.Trace("deadcode", func() {
@@ -33,6 +34,7 @@ func Opt(prog ast.Program) ast.Program {
 			})
 		}, control.VERBOSE_SUBPASS)
 	}
+
 	if !control.Trace_skipPass("algsimp") {
 		control.Verbose("AlgSimp-Opt", func() {
 			control.Trace("algsimp", func() {
@@ -44,6 +46,7 @@ func Opt(prog ast.Program) ast.Program {
 			})
 		}, control.VERBOSE_SUBPASS)
 	}
+
 	if !control.Trace_skipPass("constfold") {
 		control.Verbose("ConstFold-Opt", func() {
 			control.Trace("constfold", func() {

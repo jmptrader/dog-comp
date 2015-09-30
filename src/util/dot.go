@@ -30,7 +30,7 @@ func (this *Dot) InsertOne(one string) {
 func (this *Dot) String() string {
 	var buf bytes.Buffer
 	for _, e := range this.list {
-		buf.Write([]byte(e.String()))
+		buf.Write([]byte(e.String())) // string append
 	}
 	return buf.String()
 }
@@ -79,7 +79,10 @@ func (this *Dot) Visualize(name string) {
 	var stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
-	cmd.Run()
+    err := cmd.Run()
+    if err != nil{
+        panic(err)
+    }
 	fmt.Print(stdout.String())
 	fmt.Print(stderr.String())
 

@@ -25,7 +25,7 @@ const (
 )
 
 const (
-	VERSION = "dog v0.2.0 linux/386"
+	VERSION = "dog v0.2.0 linux/i386"
 	WEBSITE = "https://github.com/qc1iu/dog-comp"
 )
 
@@ -43,8 +43,8 @@ func printSpeaces(i int) int {
 }
 
 func printAllArg() {
-	const INDENT_1 = 12
-	const INDENT_2 = 36
+	const INDENT_1 = 13
+	const INDENT_2 = 38
 	for _, arg := range all_Arg {
 		i, _ := fmt.Print("  " + arg.name)
 		i += printSpeaces(INDENT_1 - i)
@@ -78,7 +78,7 @@ func argException(s ...interface{}) {
 
 func args_init() {
 	all_Arg = []Arg{
-		{"codegen",
+		{"-codegen",
 			"{bytecode|C|dalvik|x86}",
 			"which code generator to use",
 			STRING,
@@ -100,7 +100,7 @@ func args_init() {
 					argException("bad argument")
 				}
 			}},
-		{"dump",
+		{"-dump",
 			"{ast|c}",
 			"dump information about the given ir",
 			STRING,
@@ -118,7 +118,7 @@ func args_init() {
 					argException("bad argument")
 				}
 			}},
-		{"elab",
+		{"-elab",
 			"{classtable|methodtable}",
 			"dump information about elaboration",
 			STRING,
@@ -135,21 +135,21 @@ func args_init() {
 					argException("bad argument")
 				}
 			}},
-		{"lex",
+		{"-lex",
 			"",
 			"dump the result of lexical analysis",
 			EMPTY,
 			func(c interface{}) {
 				Lexer_dump = true
 			}},
-		{"testlexer",
+		{"-testlexer",
 			"",
 			"whether or not to test the lexer",
 			EMPTY,
 			func(c interface{}) {
 				Lexer_test = true
 			}},
-		{"o",
+		{"-o",
 			"<outfile>",
 			"set the name of the output file",
 			STRING,
@@ -160,7 +160,7 @@ func args_init() {
 					panic("impossible")
 				}
 			}},
-		{"trace",
+		{"-trace",
 			"<passname>",
 			"trace compile pass",
 			STRING,
@@ -169,7 +169,7 @@ func args_init() {
 					Trace_add(s)
 				}
 			}},
-		{"skip",
+		{"-skip",
 			"<passname>",
 			"skip opt pass",
 			STRING,
@@ -178,7 +178,7 @@ func args_init() {
 					Trace_Skip_add(s)
 				}
 			}},
-		{"verbose",
+		{"-verbose",
 			"{0|1|2|3}",
 			"verbose pass",
 			INT,
@@ -189,7 +189,7 @@ func args_init() {
 					panic("impossible")
 				}
 			}},
-		{"visualize",
+		{"-visualize",
 			"{pdf|ps|svg|jpg}",
 			"graph format",
 			STRING,
@@ -211,7 +211,7 @@ func args_init() {
 					panic("impossible")
 				}
 			}},
-		{"opt",
+		{"-opt",
 			"{0~6}",
 			"optimization level",
 			INT,
@@ -223,7 +223,7 @@ func args_init() {
 					Optimization_Level = i
 				}
 			}},
-		{"help",
+		{"-help",
 			"",
 			"show this help information",
 			EMPTY,
@@ -249,9 +249,12 @@ func Do_arg(args []string) string {
 		} else {
 		}
 		for _, arg := range all_Arg {
-			if !strings.EqualFold(arg.name, strings.TrimPrefix(args[i], "-")) {
-				continue
-			}
+            if arg.name != args[i]{
+                continue
+            }
+			//if !strings.EqualFold(arg.name, strings.TrimPrefix(args[i], "-")) {
+			//	continue
+			//}
 			found = true
 			switch arg.kind {
 			case EMPTY:

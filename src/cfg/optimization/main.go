@@ -32,5 +32,7 @@ func Opt(prog Program) Program {
 
 	Ast = ConstProp(Ast)
 
+    Ast = CopyProp(Ast)
+
 	return Ast
 }

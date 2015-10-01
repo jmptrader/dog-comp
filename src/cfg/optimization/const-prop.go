@@ -18,10 +18,10 @@ func ConstProp(prog Program) Program {
 			f_operand = o
 		case *Var:
 			f_operand = o
-            //d: t<-c
-            //n: y<-t+x
-            //if d reaches n
-            //and no other definitions of t reach n
+			//d: t<-c
+			//n: y<-t+x
+			//if d reaches n
+			//and no other definitions of t reach n
 			f_reaching_def = stmDefIn[f_stm]
 			founded := false
 			var move *Move = nil

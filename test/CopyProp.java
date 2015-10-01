@@ -32,10 +32,11 @@ class Doit {
 	while (i < 3) {
 	    System.out.println(333);
 	    i = p + 1;
-	    j = j +1 ;
+	    j = i +1 ;
         q = j;
 	    k = q;//this should be opt -> k=j;
 	    p = k+j;
+        i = k+j;//this should be opt by subexp
 	}
 	return 0;
     }

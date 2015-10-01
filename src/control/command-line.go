@@ -249,9 +249,9 @@ func Do_arg(args []string) string {
 		} else {
 		}
 		for _, arg := range all_Arg {
-            if arg.name != args[i]{
-                continue
-            }
+			if arg.name != args[i] {
+				continue
+			}
 			//if !strings.EqualFold(arg.name, strings.TrimPrefix(args[i], "-")) {
 			//	continue
 			//}

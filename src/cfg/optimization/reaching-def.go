@@ -8,8 +8,6 @@ import (
 )
 
 var stmDefIn map[Stm]map[Stm]bool
-var stmDefOut map[Stm]map[Stm]bool
-var defs map[string]map[Stm]bool
 
 func ReachingDef(prog Program) Program {
 
@@ -26,6 +24,8 @@ func ReachingDef(prog Program) Program {
 	var blockOut map[Block]map[Stm]bool
 	var oneStmGen map[Stm]bool
 	var oneStmKill map[Stm]bool
+	var stmDefOut map[Stm]map[Stm]bool
+	var defs map[string]map[Stm]bool
 
 	stmGen = make(map[Stm]map[Stm]bool)
 	stmKill = make(map[Stm]map[Stm]bool)
@@ -43,7 +43,6 @@ func ReachingDef(prog Program) Program {
 		BlockGenKill
 		BlockInOut
 		StmInOut
-		InitDefs
 	)
 	var ReachingDef_Kind int
 
@@ -285,6 +284,7 @@ func ReachingDef(prog Program) Program {
 		if control.Trace_contains("reaching.step4") {
 			fmt.Println(current_method.Name + " " + b.Label_id.String())
 		}
+        //blockIn is the first stmIn
 		prev_out := make(map[Stm]bool)
 		for s, _ := range blockIn[b] {
 			prev_out[s] = true
@@ -459,6 +459,7 @@ func ReachingDef(prog Program) Program {
 			for _, b := range m.Blocks {
 				do(b)
 			}
+            //setp3 block in out
 			ReachingDef_Kind = BlockInOut
 			graph := GenGraph(m)
 			nodes := graph.GetNodes()

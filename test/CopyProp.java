@@ -31,12 +31,16 @@ class Doit {
 	    System.out.println(222);
 	while (i < 3) {
 	    System.out.println(333);
+        z = z+y;
 	    i = p + 1;
 	    j = i +1 ;
         q = j;
 	    k = q;//this should be opt -> k=j;
 	    p = k+j;
-        i = k+j;//this should be opt by subexp
+        z = k+j;//opt by subexp
+        j = j+1;//this kill the exp k+j.
+        y = y+z;
+        i = k+j;//this shouldn't be opt by subexp
 	}
 	return 0;
     }

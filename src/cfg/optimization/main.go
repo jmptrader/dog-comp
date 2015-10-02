@@ -10,31 +10,43 @@ func Opt(prog Program) Program {
 	Ast := prog
 
 	//dead-code
-	if control.Optimization_Level < 3 {
-		return Ast
-	}
-	Liveness(Ast)
-	in_size := len(stmLiveIn)
-	out_size := len(stmLiveOut)
-	Ast = DeadCode(Ast)
-	for {
-		Liveness(Ast)
-		if in_size == len(stmLiveIn) && out_size == len(stmLiveOut) {
-			break
+	times := 5
+	for times > 0 {
+		if control.Optimization_Level >= 3 {
+			Liveness(Ast)
+			in_size := len(stmLiveIn)
+			out_size := len(stmLiveOut)
+			Ast = DeadCode(Ast)
+			for {
+				Liveness(Ast)
+				if in_size == len(stmLiveIn) && out_size == len(stmLiveOut) {
+					break
+				}
+				in_size = len(stmLiveIn)
+				out_size = len(stmLiveOut)
+				Ast = DeadCode(Ast)
+			}
+			util.Assert(Ast != nil, func() { panic("impossible") })
 		}
-		in_size = len(stmLiveIn)
-		out_size = len(stmLiveOut)
-		Ast = DeadCode(Ast)
+
+		if control.Optimization_Level >= 4 {
+			Ast = ReachingDef(Ast)
+
+			Ast = ConstProp(Ast)
+		}
+
+		if control.Optimization_Level >= 5 {
+			Ast = CopyProp(Ast)
+		}
+
+		if control.Optimization_Level >= 6 {
+			Ast = AvailExp(Ast)
+
+			Ast = Cse(Ast)
+		}
+
+		times--
 	}
-	util.Assert(Ast != nil, func() { panic("impossible") })
-
-	Ast = ReachingDef(Ast)
-
-	Ast = ConstProp(Ast)
-
-	Ast = CopyProp(Ast)
-
-    Ast = AvailExp(Ast)
 
 	return Ast
 }

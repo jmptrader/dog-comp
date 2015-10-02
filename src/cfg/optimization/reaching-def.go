@@ -284,7 +284,7 @@ func ReachingDef(prog Program) Program {
 		if control.Trace_contains("reaching.step4") {
 			fmt.Println(current_method.Name + " " + b.Label_id.String())
 		}
-        //blockIn is the first stmIn
+		//blockIn is the first stmIn
 		prev_out := make(map[Stm]bool)
 		for s, _ := range blockIn[b] {
 			prev_out[s] = true
@@ -459,7 +459,7 @@ func ReachingDef(prog Program) Program {
 			for _, b := range m.Blocks {
 				do(b)
 			}
-            //setp3 block in out
+			//setp3 block in out
 			ReachingDef_Kind = BlockInOut
 			graph := GenGraph(m)
 			nodes := graph.GetNodes()

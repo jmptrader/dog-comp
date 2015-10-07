@@ -55,7 +55,7 @@ use
 
 to generate CFG for LinkedList.java.
 
-![image](https://github.com/qc1iu/dog-comp/raw/master/screenshots/Element_Equal.svg)
+![](https://raw.githubusercontent.com/qc1iu/dog-comp/master/screenshots/Element_Equal.jpg)
 
 CFG-based program representations make program optimizations much easier, due to the fact that it's much easier to calculate the control flow and data flow information required to perform optimizations. Generally speaking, an optimization can be divided into two phases: [program analysis](https://en.wikipedia.org/wiki/Program_analysis) and rewriting. During the program analysis phase (usually data-flow analysis), the dog-comp analyzes the target program to get useful static information as an approximation of the program's dynamic behaviour. And such information will be used in the second phase: program rewriting, the dog-comp rewrites the program according to the static information obtained in the first phase. As a result fo these two steps, the program is altered in some way---it is optimized. For instance, in the [dead-code elimination optimization](https://github.com/qc1iu/dog-comp/blob/master/src/cfg/optimization/dead-code.go), the program analysis phase will determine whether or not the variable x defined by x = e will be used anywhere in this program; if x will not be used, the program rewriting phase will remove this assignment from this program (and the program shrinks). 
 
@@ -132,15 +132,4 @@ There are two different forms of objects in MiniJava: normal objects and (intege
 	-verbose {0|1|2|3}       trace method execuated
    	-gcLog                   generate GClog
    	-help                    help
-
-
-##Caveats & Limitations
-
-Too many...
-
-##More
-
-[dog-comp](https://github.com/qc1iu/dog-comp "dog-comp") is a MiniJava compiler  implements in Golang which has [dataflow optimazation.](https://en.wikipedia.org/wiki/Data-flow_analysis)
-
-
 
